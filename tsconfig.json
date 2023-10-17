@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "ESNext",
+    "declaration": true,
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ],
+    "strict": true,
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "outDir": "lib",
+    "moduleResolution": "node"
+  },
+  "include": [
+    "*.ts",
+    "**/*.ts",
+    "code-gen/options.ts.tpl"
+  ],
+  "exclude": [
+    "api.config.ts"
+  ]
+}

@@ -1,0 +1,13 @@
+import type { ISettingsV3 } from '../../types';
+import type { DotNetTypes, IDotnetType } from './types';
+export declare function comment(value?: string): string;
+export declare function mergeLines(value?: string): string;
+export declare function makeFilename(type: IDotnetType): string;
+export declare function makeTypename(type?: IDotnetType): string;
+export declare function detectDependsTypes(type: IDotnetType): DotNetTypes;
+export declare function isModelType(type: IDotnetType): boolean | undefined;
+export declare function cleanAsync(outputPath: string): Promise<void>;
+export declare function prettierCode(code: string): string;
+export declare function writeFileWithDirectoryCreation(filePath: string, fileContent: string): Promise<void>;
+export declare function getFileId(basePath: string, output: string | ((fileId: string) => string) | undefined, fileName: string, defaultPath: 'models' | 'apis'): string;
+export declare function getModelsFileId(setting: ISettingsV3, fileName: string): string;
