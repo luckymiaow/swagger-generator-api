@@ -3,7 +3,7 @@ import * as fs from 'node:fs';
 import { StringBuilder } from 'typescript-string-operations';
 import { emptyDirSync } from 'fs-extra';
 import prettier from 'prettier';
-import type { ISettingsV3 } from '../../types';
+import type { ISettingsV3, ModelOption } from '../../types';
 import type { DotNetTypes, IDotnetType } from './types';
 
 export function comment(value?: string): string {
@@ -122,7 +122,7 @@ export async function writeFileWithDirectoryCreation(filePath: string, fileConte
   });
 }
 
-export function getFileId(basePath: string, output: string | ((fileId: string) => string) | undefined, fileName: string, defaultPath: 'models' | 'apis') {
+export function getFileId(basePath: string, output: string | ((fileId: string) => string) | undefined, fileName: string, defaultPath: 'models' | 'apis', extname = '.ts'): string {
   let fileId = ''
   if (typeof output === 'function') {
     fileId = output(path.join(basePath, defaultPath, `${fileName}`))
@@ -137,11 +137,17 @@ export function getFileId(basePath: string, output: string | ((fileId: string) =
         fileId = path.join(basePath, output, `${fileName}`)
   }
 
-  return fileId.endsWith('.ts') ? fileId : `${fileId}.ts`
+  return hasExtension(fileId) ? fileId : `${fileId}${extname}`
 }
 
 export function getModelsFileId(setting: ISettingsV3, fileName: string) {
-  return getFileId(setting.basePath, setting.template.models.output, fileName, 'models')
+  const models = setting.template.models as ModelOption
+  return getFileId(setting.basePath, models.output, fileName, 'models', models.extension || '.ts')
+}
+
+function hasExtension(filePath: string) {
+  const fileExtension = path.extname(filePath);
+  return !!fileExtension;
 }
 
 // export function getApiFileId(setting: ISettingsV3, fileName: string) {

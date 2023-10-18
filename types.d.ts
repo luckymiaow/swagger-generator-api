@@ -1,4 +1,4 @@
-interface ISettingsV3 {
+export interface ISettingsV3 {
   url: string;
   basePath: string;
   template: Template;
@@ -7,12 +7,14 @@ interface ISettingsV3 {
 export type Template = {
   /**
    * 生成模型配置
+   * false 时不生成
    */
-  models: ModelOption;
+  models: ModelOption | false;
   /**
    * 生成接口配置
+   * false 时不生成
    */
-  api: ApiOption;
+  api: ApiOption | false;
   /** 
    * 写入文件之后
    */
@@ -45,6 +47,12 @@ export type ModelOption = {
    * @default true
    */
   prettier?: boolean;
+
+  /**
+   * 生成文件的扩展名
+   * @default .ts
+   */
+  extension?: string;
 };
 
 export type ApiOption =
@@ -55,6 +63,12 @@ export type ApiOption =
        * @default true
        */
       prettier?: boolean;
+
+      /**
+       * 生成文件的扩展名
+       * @default .ts
+       */
+      extension?: string;
     }
   | {
       /**
@@ -75,6 +89,11 @@ export type ApiOption =
        * @default true
        */
       prettier?: boolean;
+      /**
+       * 生成文件的扩展名
+       * @default .ts
+       */
+      extension?: string;
     };
 
 export type TransformModel = (model: ModelType) => string;
@@ -170,3 +189,6 @@ export type IApiDocV3 = {
 };
 
 export declare function defineConfig(config: IApiDocV3 ): IApiDocV3;
+
+
+export default function main(config: ISettingsV3[]): Promise<void>

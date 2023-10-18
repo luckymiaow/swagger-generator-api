@@ -3,7 +3,7 @@ import { String } from 'typescript-string-operations';
 import camelCase from 'camelcase';
 import handlebars from 'handlebars';
 import type { OpenAPI3, OpenAPI3Operation, OpenAPI3Parameter, Parameter } from '../schema';
-import type { ApiAction, ApiController, ApiProperties, ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults } from '../../types';
+import type { ApiAction, ApiController, ApiOption, ApiProperties, ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults } from '../../types';
 import { defaultApisTransform } from '../presets';
 import { HttpStatusCodes } from './types';
 import type { DotNetTypes, IAipContent, IApiBody, IApiOperation, IApiParameter, IDotnetTypeRef } from './types';
@@ -280,23 +280,28 @@ export async function generateApisAsync(
 
   const paths: Record<string, string> = {}
 
-  if (!setting.template.api.transform)
-    setting.template.api.transform = defaultApisTransform
+  if (setting.template.api === false) return { apis: res, paths: {} }
 
-  if (typeof setting.template.api.transform === 'string') {
-    const apiConfig = setting.template.api as {
+  const apiOption = setting.template.api as ApiOption
+
+  if (!apiOption.transform)
+    apiOption.transform = defaultApisTransform
+
+  if (typeof apiOption.transform === 'string') {
+    const apiConfig = apiOption as {
       transform: string
       output: string | ((fileId: string) => string)
       prettier: boolean
+      extension: string
     };
     const code = handlebarsTransform(apiConfig.transform, res);
-    const fileId = getFileId(setting.basePath, apiConfig.output, 'index', 'apis');
+    const fileId = getFileId(setting.basePath, apiConfig.output, 'index', 'apis', apiConfig.extension);
     await writeFileWithDirectoryCreation(fileId, apiConfig.prettier !== false ? prettierCode(code) : code);
     paths.index = fileId
   }
   else {
-    const fileId = getFileId(setting.basePath, undefined, 'index', 'apis');
-    const genRes = setting.template.api.transform(res, fileId);
+    const fileId = getFileId(setting.basePath, undefined, 'index', 'apis', apiOption.extension);
+    const genRes = apiOption.transform(res, fileId);
     if (!genRes)
       throw new Error('返回正确的结果 Array<TransformReturn>  | TransformReturn')
 
@@ -305,10 +310,10 @@ export async function generateApisAsync(
     for (const item of cyclicBody) {
       let fileId = '';
       if (!item.output || typeof item.output === 'string')
-        fileId = getFileId(setting.basePath, item.output, 'index', 'apis');
+        fileId = getFileId(setting.basePath, item.output, 'index', 'apis', apiOption.extension);
       else
-        fileId = item.output(getFileId(setting.basePath, undefined, 'index', 'apis'))
-      await writeFileWithDirectoryCreation(fileId, setting.template.api.prettier !== false ? prettierCode(item.code) : item.code);
+        fileId = item.output(getFileId(setting.basePath, undefined, 'index', 'apis', apiOption.extension))
+      await writeFileWithDirectoryCreation(fileId, apiOption.prettier !== false ? prettierCode(item.code) : item.code);
       paths[parse(fileId).name] = fileId
     }
   }

@@ -1,5 +1,5 @@
 import handlebars from 'handlebars';
-import type { ISettingsV3, ModelReturnResults, ModelType, Properties } from '../../types';
+import type { ISettingsV3, ModelOption, ModelReturnResults, ModelType, Properties } from '../../types';
 import { defaultModelTransform } from '../presets';
 import type { DotNetTypes, IDotnetType } from './types';
 import { detectDependsTypes, getModelsFileId, isModelType, makeFilename, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
@@ -8,26 +8,30 @@ export async function generateModelsAsync(types: DotNetTypes, setting: ISettings
   const models = fetchModelsAsync(types);
   const modelsPath: Record<string, string> = {};
   let dtsPath = ''
-  if (!setting.template.models.transform) setting.template.models.transform = defaultModelTransform
-  if (typeof setting.template.models.transform === 'string') {
+  if (setting.template.models === false) return { models: [], paths: {} };
+
+  const modelsOption = setting.template.models as ModelOption
+
+  if (!modelsOption.transform) modelsOption.transform = defaultModelTransform
+  if (typeof modelsOption.transform === 'string') {
     models.forEach((model) => {
-      const code = handlebarsTransform(setting.template.models.transform as string, model)
+      const code = handlebarsTransform(modelsOption.transform as string, model)
       const fileId = getModelsFileId(setting, model.key)
-      writeFileWithDirectoryCreation(fileId, setting.template.models.prettier !== false ? prettierCode(code) : code)
+      writeFileWithDirectoryCreation(fileId, modelsOption.prettier !== false ? prettierCode(code) : code)
       modelsPath[model.key] = fileId
     })
   }
   else {
     for (const model of models) {
-      const code = setting.template.models.transform(model)
+      const code = modelsOption.transform(model)
       const fileId = getModelsFileId(setting, model.key)
-      writeFileWithDirectoryCreation(fileId, setting.template.models.prettier !== false ? prettierCode(code) : code)
+      writeFileWithDirectoryCreation(fileId, modelsOption.prettier !== false ? prettierCode(code) : code)
       modelsPath[model.key] = fileId
     }
   }
 
-  if (setting.template.models.dts !== false) {
-    const fileName = typeof setting.template.models.dts === 'string' ? setting.template.models.dts : 'index';
+  if (modelsOption.dts !== false) {
+    const fileName = typeof modelsOption.dts === 'string' ? modelsOption.dts : 'index';
     const fileId = getModelsFileId(setting, fileName);
     genIndex(fileId, models)
     dtsPath = fileId
