@@ -1,4 +1,9 @@
 
+#使用
+`yarn add swagger-generator-api -D`
+`yarn gen_api`
+
+
 ##api.config.ts
 
 ```typescript
