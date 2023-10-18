@@ -62,12 +62,12 @@ export namespace {{this.name}} {
      * {{this.method}} {{this.url}}
      * {{this.description}}
      */
-    static async {{this.name}}(params: {{properties this.parameters false}}): Promise<{{this.returnType}}> {
+    static async {{this.name}}(params: {{properties this.parameters false}}{{#if this.requestBody}}, data: {{ properties this.requestBody false}} {{/if}}, options?: AxiosRequestConfig): Promise<{{this.returnType}}> {
       return apiOptions.request({
         method: "GET",
         url: \`{{replace  this.url '{' '$\{params.'  }}\`,
-        params,
-        responseType:'{{this.responseType}}',
+        params,{{#if this.requestBody}}data,{{/if}}responseType:'{{this.responseType}}',
+        ...(options || {})
       });
     }
     {{/each}}
@@ -82,15 +82,30 @@ export class {{this.name}} {
    * {{this.method}} {{this.url}}
    * {{this.description}}
    */
-  static async {{this.name}}(params: {{properties this.parameters false}}): Promise<{{this.returnType}}> {
+  static async {{this.name}}(params: {{properties this.parameters false}}{{#if this.requestBody}}, data: {{properties this.requestBody false}} {{/if}}, options?: AxiosRequestConfig): Promise<{{this.returnType}}> {
     return apiOptions.request({
       method: "GET",
       url: \`{{replace  this.url '{' '$\{params.'  }}\`,
-      params,
-      responseType:'{{this.responseType}}',
+      params,{{#if this.requestBody}}data,{{/if}}responseType:'{{this.responseType}}',
+      ...(options || {})
     });
   }
   {{/each}}
+}
+{{/each}}
+
+{{#each data.actions}}
+/**
+ * {{this.method}} {{this.url}}
+ * {{this.description}}
+ */
+export function {{this.name}}(params: {{properties this.parameters false}} {{#if this.requestBody}}, data: {{ properties this.requestBody false}} {{/if}}, options?: AxiosRequestConfig): Promise<{{this.returnType}}> {
+  return apiOptions.request({
+    method: "GET",
+    url: \`{{replace  this.url '{' '$\{params.'  }}\`,
+    params,{{#if this.requestBody}}data,{{/if}}responseType:'{{this.responseType}}',
+    ...(options || {})
+  });
 }
 {{/each}}
 `

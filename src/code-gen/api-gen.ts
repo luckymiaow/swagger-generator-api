@@ -105,8 +105,8 @@ function getParameters(data?: IApiParameter[] | undefined): string | ApiProperti
   });
 }
 
-function getRequestBody(requestBody?: IApiBody): string {
-  if (!requestBody?.content) return 'any';
+function getRequestBody(requestBody?: IApiBody): string | undefined {
+  if (!requestBody?.content) return undefined;
   const contentTypes = Object.keys(requestBody.content);
   const jsonContentType = contentTypes.find(c => /\/json$/.test(c));
   let contentType: string | undefined;
@@ -158,6 +158,20 @@ function getResultType(responseBody?: IApiBody) {
   return makeTypename(resultType);
 }
 
+function getAction(actionName: string, item: IApiOperation): ApiAction {
+  return {
+    url: item.path,
+    method: item.method as any,
+    name: actionName,
+    limit: item.auth as any,
+    description: item.summary,
+    responseType: getResponseType(item.responseBody),
+    parameters: getParameters(item?.parameters as IApiParameter[]),
+    requestBody: getRequestBody(item.requestBody as IApiBody),
+    returnType: getResultType(item.responseBody),
+  }
+}
+
 function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string, string>): ApiController[] {
   const entroes = Object.entries(nodes);
   const controllers: ApiController[] = [];
@@ -168,19 +182,7 @@ function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string,
     controllers.push({
       name: key,
       description: tagObj?.[key],
-      actions: actions?.map(([actionName, item]) => {
-        return {
-          url: item.path,
-          method: item.method,
-          name: actionName,
-          limit: item.auth,
-          description: item.summary,
-          responseType: getResponseType(item.responseBody),
-          parameters: getParameters(item?.parameters as IApiParameter[]),
-          requestBody: getRequestBody(item.requestBody as IApiBody),
-          returnType: getResultType(item.responseBody),
-        } as ApiAction;
-      }),
+      actions: actions?.map(([actionName, item]) => getAction(actionName, item as IApiOperation)),
     });
   }
   return controllers;
@@ -228,7 +230,7 @@ function fetchApis(doc: OpenAPI3, definedTypes: DotNetTypes) {
       methods[fnName] = operation;
     }
   }
-  const res: ApiType = { controllers: [], namespaces: [] };
+  const res: ApiType = { controllers: [], namespaces: [], actions: [] };
   const tagObj = doc.tags.reduce((a, b) => ((a[b.name] = b.description), a), {} as any);
   const groupApi = Object.entries(apiRoot);
   if (groupApi.length === 1) {
@@ -236,8 +238,11 @@ function fetchApis(doc: OpenAPI3, definedTypes: DotNetTypes) {
     return res;
   }
   for (const [key, apis] of groupApi) {
-    const isClass = Object.entries(apis);
-    if (isClass?.[0][1]?.path && isClass[0][1]?.method) {
+    const isClass = Object.entries(apis)
+    if (typeof isClass[0][1] === 'string') {
+      res.actions?.push(getAction(key, apis as IApiOperation));
+    }
+    else if (apis && ('path' in isClass[0][1] && 'method' in isClass[0][1])) {
       res.controllers?.push(...fetchControllers({ [key]: apis } as any, tagObj));
     }
     else {

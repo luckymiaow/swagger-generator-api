@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "ESNext",
+    "module": "commonjs",
     "declaration": true,
     "lib": [
       "esnext",
@@ -13,13 +13,10 @@
     "baseUrl": "./",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "outDir": "lib",
-    "moduleResolution": "node"
+    "outDir": "lib"
   },
   "include": [
-    "*.ts",
-    "**/*.ts",
-    "code-gen/options.ts.tpl"
+    "./src",
   ],
   "exclude": [
     "api.config.ts"

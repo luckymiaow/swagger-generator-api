@@ -115,6 +115,7 @@ export type ApiType = {
   dependencys?: (Dependency & { fileId: string })[];
   namespaces?: ApiNamespace[];
   controllers?: ApiController[];
+  actions?: ApiAction[];
 };
 
 export type ApiNamespace = {

@@ -43,6 +43,12 @@ export default async function main(settings: ISettingsV3[]) {
   process.env.NODE_NO_WARNINGS = '1';
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   const loading = ora('读取配置中...').start();
+  loading.spinner = {
+    interval: 70, // 转轮动画每帧之间的时间间隔
+    frames: [
+      '✹',
+    ],
+  }
   loading.color = 'yellow';
 
   for (const setting of settings) {
