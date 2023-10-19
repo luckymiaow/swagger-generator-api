@@ -19,6 +19,6 @@
     "./src",
   ],
   "exclude": [
-    "api.config.ts"
+    "api.config.ts",
   ]
 }

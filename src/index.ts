@@ -8,24 +8,19 @@ import axios from 'axios';
 import helpers from 'handlebars-helpers';
 import handlebars from 'handlebars';
 import ora from 'ora';
-import type { IApiDocV3, ISettingsV3, Properties } from '../types';
+import type { IApiDocV3, ISettingsV3, ModelType, Properties } from '../types';
 import type { OpenAPI3, OpenAPI3Schemas } from './schema';
-import { cleanAsync, prettierCode } from './code-gen/utils';
+import { cleanAsync } from './code-gen/utils';
 import { buildTypes, generateApisAsync, generateModelsAsync } from './code-gen';
+import { joinProperties } from './presets';
 
 const registeredHelpers = helpers();
 Object.keys(registeredHelpers).forEach((helperName) => {
   handlebars.registerHelper(helperName, registeredHelpers[helperName]);
 });
 
-handlebars.registerHelper('properties', (data: Properties[] | string, isValue = true) => {
-  if (!data) return 'any';
-  if (typeof data === 'string') return data;
-  const str = prettierCode(`{
-    ${data.map((item) => {
-      return `${item.description ? `/*${item.description}*/\n` : ''}${item.name}${item.required ? '' : '?'}: ${item.type.join('|')}${isValue ? ` = ${item.value}` : ''}`
-    }).join(';\n')}}`)
-  return new handlebars.SafeString(str);
+handlebars.registerHelper('properties', (data: Properties[] | string, definition: ModelType['definition'] = 'class', isValue = true) => {
+  return new handlebars.SafeString(joinProperties(data, definition, isValue));
 });
 
 async function loadApiDesc(docUrl: string): Promise<OpenAPI3> {
@@ -54,8 +49,6 @@ export default async function main(settings: ISettingsV3[]) {
   for (const setting of settings) {
     setting.basePath = path.join(process.cwd(), setting.basePath)
 
-    await cleanAsync(setting.basePath);
-
     loading.info(`下载api文档中[${setting.url}]...`);
 
     const doc = await loadApiDesc(setting.url);
@@ -63,6 +56,8 @@ export default async function main(settings: ISettingsV3[]) {
     loading.info('文档生成中...');
 
     const types = buildTypes(doc.components?.schemas as OpenAPI3Schemas);
+
+    await cleanAsync(setting.basePath);
 
     const models = await generateModelsAsync(types, setting);
 

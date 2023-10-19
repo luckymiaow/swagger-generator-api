@@ -14,7 +14,7 @@ export type Template = {
    * 生成接口配置
    * false 时不生成
    */
-  api: ApiOption | false;
+  api: (ApiOption) | false;
   /** 
    * 写入文件之后
    */
@@ -56,19 +56,9 @@ export type ModelOption = {
 };
 
 export type ApiOption =
-  | {
-      transform: TransformApi;
-      /**
-       * 格式化代码
-       * @default true
-       */
-      prettier?: boolean;
-
-      /**
-       * 生成文件的扩展名
-       * @default .ts
-       */
-      extension?: string;
+  | ({
+      transform?: TransformApi;
+    
     }
   | {
       /**
@@ -84,17 +74,27 @@ export type ApiOption =
        * 为函数时应返回转换后的文件
        */
       transform: string;
-      /**
+    })  & ApiOptionBase;
+
+export type ApiOptionBase = {
+  /**
        * 格式化代码
        * @default true
        */
-      prettier?: boolean;
-      /**
-       * 生成文件的扩展名
-       * @default .ts
-       */
-      extension?: string;
-    };
+  prettier?: boolean;
+
+  /**
+   * 生成文件的扩展名
+   * @default .ts
+   */
+  extension?: string;
+
+  /**
+   * 在写入action前，可对action做一些操作
+   */
+  onBeforeActionWriteFile?:(action:ApiAction)=>ApiAction
+
+}
 
 export type TransformModel = (model: ModelType) => string;
 
@@ -111,8 +111,8 @@ export type ModelType = {
 
 export type Properties = {
   name: string; // 属性名称
-  type: string[]; // 属性类型
-  value?: string; // 属性值
+  type?: string[]; // 属性类型,枚举时为空
+  value?: any; // 属性值
   description?: string; // 属性描述
   required?: boolean;
 };
@@ -192,3 +192,4 @@ export declare function defineConfig(config: IApiDocV3 ): IApiDocV3;
 
 
 export default function main(config: ISettingsV3[]): Promise<void>
+

@@ -128,13 +128,16 @@ export function getFileId(basePath: string, output: string | ((fileId: string) =
     fileId = output(path.join(basePath, defaultPath, `${fileName}`))
   }
   else {
-    if (!output)
+    if (!output) {
       fileId = path.join(basePath, defaultPath, `${fileName}`)
-    else
+    }
+    else {
+      output = hasExtension(output) ? output : path.join(output, `${fileName}`)
       if (isAbsolute(output))
-        fileId = path.join(output, `${fileName}`)
+        fileId = output;
       else
-        fileId = path.join(basePath, output, `${fileName}`)
+        fileId = path.join(basePath, output)
+    }
   }
 
   return hasExtension(fileId) ? fileId : `${fileId}${extname}`

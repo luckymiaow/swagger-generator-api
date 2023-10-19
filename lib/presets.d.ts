@@ -1,5 +1,26 @@
-import type { ApiType, ModelType, TransformReturn } from '../types';
-export declare const defaultModelTransform = "\n{{#each data.dependencys}}\nimport { {{this.modules}} } from './{{this.id}}';\n{{/each}}\n{{#if data.description}}/*{{data.description}}*/{{/if}}\nexport {{data.definition}} {{data.name}} {{#if data.extends}}extends {{data.extends}}{{/if}} {\n  {{#each data.properties}}\n  {{#if this.description}}/*{{this.description}}*/{{/if}}\n  {{this.name}}: {{join this.type ' | '}} = {{this.value}};\n  {{/each}}\n}";
+import type { ApiAction, ApiController, ApiNamespace, ApiType, Dependency, ModelType, Properties, TransformReturn } from '../types';
+export declare function joinProperties(data?: Properties[] | string, definition?: ModelType['definition'], isValue?: boolean): string;
+export declare const defaultModelTransform = "\n{{#each data.dependencys}}\nimport { {{this.modules}} } from './{{this.id}}';\n{{/each}}\n{{#if data.description}}/*{{data.description}}*/{{/if}}\nexport {{data.definition}} {{data.name}} {{#if data.extends}}extends {{data.extends}}{{/if}} {{properties data.properties data.definition}}";
 export declare function defaultModelTransformFn(data: ModelType): string;
-export declare const defaultApisTransform = "\nimport axios, { AxiosRequestConfig, AxiosResponse } from 'axios';\nimport { {{#each data.dependencys}} {{this.modules}},\n {{/each}} } from '../models';\n\n //\u53EF\u4EE5\u6839\u636E\u9700\u8981\u81EA\u884C\u66FF\u6362\nexport class apiOptions{\n  static async request<TData, TResult>(options: AxiosRequestConfig<TData>): Promise<TResult> {\n    return  axios.request<TData, AxiosResponse<TResult>>(options) as TResult;\n  }\n} \n\n{{#each data.namespaces}}\nexport namespace {{this.name}} {\n  {{#each this.controllers}}\n  export class {{this.name}} {\n    {{#each this.actions}}  \n    /**\n     * {{this.method}} {{this.url}}\n     * {{this.description}}\n     */\n    static async {{this.name}}(params: {{properties this.parameters false}}{{#if this.requestBody}}, data: {{ properties this.requestBody false}} {{/if}}, options?: AxiosRequestConfig): Promise<{{this.returnType}}> {\n      return apiOptions.request({\n        method: \"GET\",\n        url: `{{replace  this.url '{' '${params.'  }}`,\n        params,{{#if this.requestBody}}data,{{/if}}responseType:'{{this.responseType}}',\n        ...(options || {})\n      });\n    }\n    {{/each}}\n  }\n  {{/each}}\n}\n{{/each}}\n{{#each data.controllers}}\nexport class {{this.name}} {\n  {{#each this.actions}}  \n  /**\n   * {{this.method}} {{this.url}}\n   * {{this.description}}\n   */\n  static async {{this.name}}(params: {{properties this.parameters false}}{{#if this.requestBody}}, data: {{properties this.requestBody false}} {{/if}}, options?: AxiosRequestConfig): Promise<{{this.returnType}}> {\n    return apiOptions.request({\n      method: \"GET\",\n      url: `{{replace  this.url '{' '${params.'  }}`,\n      params,{{#if this.requestBody}}data,{{/if}}responseType:'{{this.responseType}}',\n      ...(options || {})\n    });\n  }\n  {{/each}}\n}\n{{/each}}\n\n{{#each data.actions}}\n/**\n * {{this.method}} {{this.url}}\n * {{this.description}}\n */\nexport function {{this.name}}(params: {{properties this.parameters false}} {{#if this.requestBody}}, data: {{ properties this.requestBody false}} {{/if}}, options?: AxiosRequestConfig): Promise<{{this.returnType}}> {\n  return apiOptions.request({\n    method: \"GET\",\n    url: `{{replace  this.url '{' '${params.'  }}`,\n    params,{{#if this.requestBody}}data,{{/if}}responseType:'{{this.responseType}}',\n    ...(options || {})\n  });\n}\n{{/each}}\n";
+export declare function getActionString(): string;
+export declare function getClassString(): string;
+export declare function getNamespacesString(): string;
+export declare const defaultApisTransform: string;
+/**
+ * 使用预设类进行灵活拼接
+ */
+export declare class DefaultApisTransform {
+    getImport(): string;
+    getDependencys(dependencys?: Dependency[]): string;
+    getApiOptions(): string;
+    getApiRequestName(action: ApiAction): string;
+    getReturnType(action: ApiAction): string | import("../types").ApiProperties[];
+    getAction(action: ApiAction): string;
+    getController(controller: ApiController): string;
+    getNamespaces(namespace: ApiNamespace): string;
+    /**
+     * 拼接
+     */
+    generated(data: ApiType): string;
+}
 export declare function defaultApisTransformFn(data: ApiType): Array<TransformReturn> | TransformReturn;

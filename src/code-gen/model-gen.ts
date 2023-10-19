@@ -79,38 +79,42 @@ export function fetchModelsAsync(types: DotNetTypes): ModelType[] {
             modules: dependType.name,
           })
         }
+        if (type.properties) {
+          const properties = type.properties!;
+          for (const propertyName in properties) {
+            const property = properties[propertyName];
+            const propertyType = property.typeRef;
+            const propertie: Properties = {
+              name: propertyName,
+              type: [makeTypename(propertyType)],
+              description: property.comments,
+              value: 'null',
+              required: !property.nullable,
+            }
+            if (property.nullable)
+              propertie.type?.push('null', 'undefined')
+
+            if (isClass) {
+              if (propertyType.isArray) propertie.value = '[]'
+              else if (property.nullable) propertie.value = 'null'
+              else if (propertyType.isBuildInType) propertie.value = getBuildInTypeValue(propertyType.name)
+              else if (propertyType.isEnum)
+                propertie.value = '0'
+            }
+            item.properties?.push(propertie)
+          }
+        }
+        if (type.baseType)
+          item.extends = makeTypename(type.baseType)
       }
+
+      if (type.isEnum) {
+        item.definition = 'enum';
+        item.properties = type.enumValues?.map(e => ({ name: e.key, value: e.value }))
+      }
+
       if (type.comments)
         item.description = type.comments
-      if (type.enum) item.definition = 'enum'
-      if (type.baseType)
-        item.extends = makeTypename(type.baseType)
-
-      if (type.properties) {
-        const properties = type.properties!;
-        for (const propertyName in properties) {
-          const property = properties[propertyName];
-          const propertyType = property.typeRef;
-          const propertie: Properties = {
-            name: propertyName,
-            type: [makeTypename(propertyType)],
-            description: property.comments,
-            value: 'null',
-            required: !property.nullable,
-          }
-          if (property.nullable)
-            propertie.type.push('null', 'undefined')
-
-          if (isClass) {
-            if (propertyType.isArray) propertie.value = '[]'
-            else if (property.nullable) propertie.value = 'null'
-            else if (propertyType.isBuildInType) propertie.value = getBuildInTypeValue(propertyType.name)
-            else if (propertyType.isEnum)
-              propertie.value = '0'
-          }
-          item.properties?.push(propertie)
-        }
-      }
 
       models.push(item)
     }
@@ -137,7 +141,7 @@ function getBuildInTypeValue(name: string) {
 }
 
 function handlebarsTransform(text: string, data: ModelType): string {
-  const template = handlebars.compile(text, { noEscape: false });
+  const template = handlebars.compile(text, { noEscape: true });
   const code = template({ data });
   return code
 }

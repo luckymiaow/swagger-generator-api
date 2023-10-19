@@ -1,5 +1,6 @@
+import type { ApiType } from 'swagger-generator-api';
 import { defineConfig } from 'swagger-generator-api';
-import { defaultApisTransform, defaultModelTransformFn } from 'swagger-generator-api/lib/presets';
+import { DefaultApisTransform, defaultModelTransformFn } from 'swagger-generator-api/lib/presets';
 
 const baseUrl = 'https://localhost:7299';
 
@@ -19,7 +20,41 @@ export default defineConfig({
             // 演示使用函数自定义api输出目录
             return fileId.replace('apis', 'requests')
           },
-          transform: defaultApisTransform,
+          transform: (apis: ApiType, fileId: string) => {
+            const generated = new DefaultApisTransform();
+            generated.getApiOptions = () => {
+              return `export class apiOptions {
+                static async request<TData, TResult>(
+                  options: AxiosRequestConfig<TData>
+                ): Promise<TResult> {
+                  return axios.request<TData, AxiosResponse<TResult>>(options) as TResult;
+                }
+
+                static async callPackedApiAsync<TData, TResult>(
+                  options: AxiosRequestConfig<TData>
+                ): Promise<TResult> {
+                  const result = (await apiOptions.request<TData, AxiosResponse<TResult>>(options)) as unknown as PackedApiResult<TResult>;
+                  if (!result.success) {
+                    throw new Error("请求接口错误");
+                  }
+                  return result.data!;
+                }
+              }`
+            }
+            generated.getReturnType = (action) => {
+              if (typeof action.returnType === 'string' && action.returnType?.includes('PackedApiResult'))
+                return action.returnType?.replace(/^PackedApiResult<(.*)>$/g, '$1')
+              return action.returnType
+            }
+            generated.getApiRequestName = (action) => {
+              if (typeof action.returnType === 'string' && action.returnType.includes('PackedApiResult')) return 'apiOptions.callPackedApiAsync'
+              return 'apiOptions.request'
+            }
+            return {
+              code: generated.generated(apis),
+              output: fileId,
+            }
+          },
         },
         onAfterWriteFile: (models, apis) => {
           // 这里可以做一些生成后的操作，
