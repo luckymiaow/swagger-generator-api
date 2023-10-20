@@ -1,4 +1,3 @@
-import type { ApiType } from 'swagger-generator-api';
 import { defineConfig } from 'swagger-generator-api';
 import { DefaultApisTransform, defaultModelTransformFn } from 'swagger-generator-api/lib/presets';
 
@@ -58,6 +57,18 @@ export default defineConfig({
         },
         onAfterWriteFile: (models, apis) => {
           // 这里可以做一些生成后的操作，
+        },
+      },
+    },
+    {
+      url: './api1.json',
+      basePath: '.generatedv2',
+      template: {
+        models: {
+
+        },
+        api: {
+
         },
       },
     },

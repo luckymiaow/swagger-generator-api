@@ -1,4 +1,7 @@
 export interface ISettingsV3 {
+  /**
+   * swagger json url or file path
+   */
   url: string;
   basePath: string;
   template: Template;
@@ -34,7 +37,7 @@ export type ModelOption = {
    *  @param {ModelType} data
    * 为函数时应返回转换后的代码
    */
-  transform: string | TransformModel;
+  transform?: string | TransformModel;
 
   /**
    * 是否在目录生成汇总导出文件，true将生成index.ts的文件 string 将在output目录生成该string的文件

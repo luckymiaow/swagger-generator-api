@@ -125,7 +125,7 @@ function getRequestBody(requestBody?: IApiBody): string | undefined {
     contentTypeDef = { typeRef, nullable: true };
   }
 
-  if (!contentTypeDef) throw `request content type not supported: ${contentTypes}`;
+  if (!contentTypeDef) return 'unknown';
 
   return makeTypename(contentTypeDef.typeRef);
 }
