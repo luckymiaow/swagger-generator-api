@@ -6,28 +6,29 @@ import { detectDependsTypes, getModelsFileId, isModelType, makeFilename, makeTyp
 
 export async function generateModelsAsync(types: DotNetTypes, setting: ISettingsV3): Promise<ModelReturnResults> {
   const models = fetchModelsAsync(types);
+
   const modelsPath: Record<string, string> = {};
+
   let dtsPath = ''
+
   if (setting.template.models === false) return { models: [], paths: {} };
 
   const modelsOption = setting.template.models as ModelOption
 
   if (!modelsOption.transform) modelsOption.transform = defaultModelTransform
-  if (typeof modelsOption.transform === 'string') {
-    models.forEach((model) => {
-      const code = handlebarsTransform(modelsOption.transform as string, model)
-      const fileId = getModelsFileId(setting, model.key)
-      writeFileWithDirectoryCreation(fileId, modelsOption.prettier !== false ? prettierCode(code) : code)
-      modelsPath[model.key] = fileId
-    })
-  }
-  else {
-    for (const model of models) {
-      const code = modelsOption.transform(model)
-      const fileId = getModelsFileId(setting, model.key)
-      writeFileWithDirectoryCreation(fileId, modelsOption.prettier !== false ? prettierCode(code) : code)
-      modelsPath[model.key] = fileId
-    }
+
+  for (let model of models) {
+    if (modelsOption.onBeforeWriteFile) model = modelsOption.onBeforeWriteFile(model)
+
+    let code = defaultModelTransform
+
+    if (!modelsOption.transform || typeof modelsOption.transform === 'string')
+      code = handlebarsTransform(modelsOption.transform as string, model)
+    else code = modelsOption.transform(model)
+
+    const fileId = getModelsFileId(setting, model.key)
+    writeFileWithDirectoryCreation(fileId, modelsOption.prettier !== false ? prettierCode(code) : code)
+    modelsPath[model.key] = fileId
   }
 
   if (modelsOption.dts !== false) {

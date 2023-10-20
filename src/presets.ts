@@ -40,9 +40,8 @@ export function defaultModelTransformFn(data: ModelType): string {
     : '';
 
   const code = `${importStatements}
-  ${descriptionComment}export ${data.definition} ${data.name} ${
-    data.extends ? `extends ${data.extends}` : ''
-  } 
+  ${descriptionComment}export ${data.definition} ${data.name} ${data.extends ? `extends ${data.extends}` : ''
+    } 
   ${joinProperties(data.properties, data.definition)}
   `;
   return code;
@@ -102,6 +101,10 @@ export class apiOptions{
 
 {{#each data.namespaces}}
 ${getNamespacesString()}
+{{/each}}
+
+{{#each data.controllers}}
+${getClassString()}
 {{/each}}
 
 {{#each data.actions}}

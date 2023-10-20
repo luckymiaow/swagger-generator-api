@@ -1,0 +1,5941 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "接口文档",
+    "version": "1.0.0",
+    "title": "接口文档"
+  },
+  "host": "localhost:8082",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "common-controller",
+      "description": "Common Controller"
+    },
+    {
+      "name": "data-statistics-controller",
+      "description": "Data Statistics Controller"
+    },
+    {
+      "name": "device-controller",
+      "description": "Device Controller"
+    },
+    {
+      "name": "flying-line-controller",
+      "description": "Flying Line Controller"
+    },
+    {
+      "name": "foreign-controller",
+      "description": "Foreign Controller"
+    },
+    {
+      "name": "route-controller",
+      "description": "Route Controller"
+    },
+    {
+      "name": "task-controller",
+      "description": "Task Controller"
+    },
+    {
+      "name": "test-controller",
+      "description": "Test Controller"
+    },
+    {
+      "name": "track-controller",
+      "description": "Track Controller"
+    },
+    {
+      "name": "uav-controller",
+      "description": "Uav Controller"
+    },
+    {
+      "name": "user-controller",
+      "description": "User Controller"
+    },
+    {
+      "name": "user-role-controller",
+      "description": "User Role Controller"
+    },
+    {
+      "name": "公司表 前端控制器",
+      "description": "Company Controller"
+    },
+    {
+      "name": "应用配置 接口",
+      "description": "Code Generator Controller"
+    },
+    {
+      "name": "无人机客户端和服务器交互的 api",
+      "description": "Uav Client Controller"
+    },
+    {
+      "name": "登录 前端控制器",
+      "description": "Login Controller"
+    },
+    {
+      "name": "资源表",
+      "description": "Resource Controller"
+    }
+  ],
+  "paths": {
+    "/admin/login": {
+      "post": {
+        "tags": [
+          "登录 前端控制器"
+        ],
+        "summary": "登录",
+        "operationId": "loginUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "imageCode",
+            "description": "图文验证码",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "password",
+            "description": "密码",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "userName",
+            "description": "用户名",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/LoginUser"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/admin/logout": {
+      "get": {
+        "tags": [
+          "登录 前端控制器"
+        ],
+        "summary": "退出登录",
+        "operationId": "logoutUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/common/downloadFile": {
+      "get": {
+        "tags": [
+          "common-controller"
+        ],
+        "summary": "downloadFile",
+        "operationId": "downloadFileUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "fileName",
+            "description": "fileName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "fileType",
+            "description": "fileType",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/common/getFileData": {
+      "get": {
+        "tags": [
+          "common-controller"
+        ],
+        "summary": "getFileData",
+        "operationId": "getFileDataUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "fileName",
+            "description": "fileName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "fileType",
+            "description": "fileType",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/common/uploadFile": {
+      "post": {
+        "tags": [
+          "common-controller"
+        ],
+        "summary": "uploadFile",
+        "operationId": "uploadFileUsingPOST",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "file",
+            "required": false,
+            "type": "file"
+          },
+          {
+            "in": "body",
+            "name": "fileType",
+            "description": "fileType",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/company/add": {
+      "post": {
+        "tags": [
+          "公司表 前端控制器"
+        ],
+        "summary": "添加公司",
+        "operationId": "addCompanyUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "公司ID",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "companyName",
+            "in": "query",
+            "description": "公司名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "createTime",
+            "in": "query",
+            "description": "创建时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "创建者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "删除状态：0：正常，1：已删除",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "邮箱号，负责人联系方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "leader",
+            "in": "query",
+            "description": "公司负责人",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "手机号，负责人联系方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "remark",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "serviceState",
+            "in": "query",
+            "description": "服务状态：0：正常，1：停止服务",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "updateTime",
+            "in": "query",
+            "description": "修改时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "updater",
+            "in": "query",
+            "description": "修改者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/company/deleteById": {
+      "post": {
+        "tags": [
+          "公司表 前端控制器"
+        ],
+        "summary": "删除公司数据",
+        "operationId": "delCompanyUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "公司ID",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/company/getCompanyById": {
+      "get": {
+        "tags": [
+          "公司表 前端控制器"
+        ],
+        "summary": "根据id获取信息",
+        "operationId": "getCompanyByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "公司id",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Company对象"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/company/getCompanyList": {
+      "get": {
+        "tags": [
+          "公司表 前端控制器"
+        ],
+        "summary": "获取公司列表",
+        "operationId": "getCompanyListUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company对象"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/company/getCompanyListByParams": {
+      "get": {
+        "tags": [
+          "公司表 前端控制器"
+        ],
+        "summary": "获取公司列表",
+        "operationId": "getCompanyUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "name",
+            "description": "公司名称",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "serviceState",
+            "description": "公司状态",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Company对象"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/company/getCompanyPageByParams": {
+      "get": {
+        "tags": [
+          "公司表 前端控制器"
+        ],
+        "summary": "获取公司列表，分页",
+        "operationId": "getCompanyPageUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "name",
+            "description": "公司名称",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageCurrent",
+            "description": "第n页",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageSize",
+            "description": "每页m条",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "serviceState",
+            "description": "公司状态",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page«Company对象»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/company/update": {
+      "post": {
+        "tags": [
+          "公司表 前端控制器"
+        ],
+        "summary": "修改公司数据",
+        "operationId": "updateCompanyUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "公司ID",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "companyName",
+            "in": "query",
+            "description": "公司名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "createTime",
+            "in": "query",
+            "description": "创建时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "创建者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "删除状态：0：正常，1：已删除",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "邮箱号，负责人联系方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "leader",
+            "in": "query",
+            "description": "公司负责人",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "手机号，负责人联系方式",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "remark",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "serviceState",
+            "in": "query",
+            "description": "服务状态：0：正常，1：停止服务",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "updateTime",
+            "in": "query",
+            "description": "修改时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "updater",
+            "in": "query",
+            "description": "修改者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/dataStatistics/deviceDataStatisticsById": {
+      "get": {
+        "tags": [
+          "data-statistics-controller"
+        ],
+        "summary": "统计数据：单设备（任务数量：missionNumber，：flyingTaskNumber，飞行里程：flyingLength，飞行面积：flyingArea），返回数据为json格式",
+        "operationId": "deviceDataStatisticsByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "id",
+            "description": "设备ID",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/dataStatistics/homePageDataStatistics": {
+      "get": {
+        "tags": [
+          "data-statistics-controller"
+        ],
+        "summary": "统计数据：首页（飞行架次：flyingTaskNumber，飞行里程：flyingLength，飞行面积：flyingArea，设备数量：deviceNumber，在线设备数量：deviceOnLineNumber），返回数据为json格式",
+        "operationId": "homePageDataStatisticsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/dataStatistics/statisticsUavFlyingDataByCompany": {
+      "get": {
+        "tags": [
+          "data-statistics-controller"
+        ],
+        "summary": "分页统计：以公司为维度，统计无人机飞行数据",
+        "operationId": "statisticsUavFlyingDataByCompanyUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "companyId",
+            "description": "公司ID",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageCurrent",
+            "description": "第n页",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageSize",
+            "description": "每页m条",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page«UavDataStatisticsVO»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/device/getDeviceById": {
+      "get": {
+        "tags": [
+          "device-controller"
+        ],
+        "summary": "根据id获取设备信息",
+        "operationId": "getDeviceByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "id",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Device对象"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/device/list": {
+      "get": {
+        "tags": [
+          "device-controller"
+        ],
+        "summary": "获取设备列表",
+        "operationId": "getDeviceListUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Device对象"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/flyingLine/add": {
+      "post": {
+        "tags": [
+          "flying-line-controller"
+        ],
+        "summary": "addFlyingLine",
+        "operationId": "addFlyingLineUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "fileName",
+            "description": "fileName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "length",
+            "description": "length",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "remark",
+            "in": "query",
+            "description": "remark",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "rename",
+            "description": "rename",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/foreign/getImageCodeByUserName": {
+      "get": {
+        "tags": [
+          "foreign-controller"
+        ],
+        "summary": "根据用户名获取 图片验证码",
+        "operationId": "getImageCodeByUserNameUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userName",
+            "description": "userName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/foreign/getPublicKey": {
+      "get": {
+        "tags": [
+          "foreign-controller"
+        ],
+        "summary": "获取rsa公钥",
+        "operationId": "getPublicKeyUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/foreign/sendEmailCodeByUserName": {
+      "get": {
+        "tags": [
+          "foreign-controller"
+        ],
+        "summary": "发送邮箱验证码",
+        "operationId": "getEmailCodeByUserNameUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "email",
+            "description": "email",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "userName",
+            "description": "userName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/foreign/updatePasswordByEmailCode": {
+      "post": {
+        "tags": [
+          "foreign-controller"
+        ],
+        "summary": "修改密码",
+        "operationId": "updatePasswordByEmailCodeUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "emailCode",
+            "description": "emailCode",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "newPassword",
+            "description": "newPassword",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "userName",
+            "description": "userName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/generator/generateAllTables": {
+      "get": {
+        "tags": [
+          "应用配置 接口"
+        ],
+        "summary": "生成所有表格对应的代码",
+        "operationId": "generateAllTablesUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/generator/generateByTables": {
+      "get": {
+        "tags": [
+          "应用配置 接口"
+        ],
+        "summary": "生成给定表格对应的代码",
+        "operationId": "generateByTablesUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "tables",
+            "description": "tables",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/resource/getResourceList": {
+      "get": {
+        "tags": [
+          "资源表"
+        ],
+        "summary": "获取资源列表",
+        "operationId": "getResourceListUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/资源表"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/resource/getResourcePageByParams": {
+      "get": {
+        "tags": [
+          "资源表"
+        ],
+        "summary": "获取资源列表，分页",
+        "operationId": "getResourcePageByParamsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "name",
+            "description": "资源名称",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageCurrent",
+            "description": "第n页",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageSize",
+            "description": "每页m条",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "type",
+            "description": "资源类型",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page«资源表»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/route/add": {
+      "post": {
+        "tags": [
+          "route-controller"
+        ],
+        "summary": "添加路由",
+        "operationId": "addRouteUsingPOST",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "remark",
+            "description": "描述",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "routeName",
+            "description": "路由名字",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "路由信息表",
+            "in": "formData",
+            "description": "file",
+            "required": false,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/route/deleteById": {
+      "post": {
+        "tags": [
+          "route-controller"
+        ],
+        "summary": "删除路由数据",
+        "operationId": "delRouteUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "路由ID",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/route/getRouteById": {
+      "get": {
+        "tags": [
+          "route-controller"
+        ],
+        "summary": "根据id获取信息",
+        "operationId": "getRouteByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "路由id",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Route对象"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/route/getRouteByParams": {
+      "get": {
+        "tags": [
+          "route-controller"
+        ],
+        "summary": "根据参数获取路由列表",
+        "operationId": "getRouteByParamsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "routeName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Route对象"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/route/getRoutePageByParams": {
+      "get": {
+        "tags": [
+          "route-controller"
+        ],
+        "summary": "获取路由列表，分页",
+        "operationId": "getRoutePageSearchUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "body",
+            "name": "pageCurrent",
+            "description": "第n页",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageSize",
+            "description": "每页m条",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "routeName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page«Route对象»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/route/update": {
+      "post": {
+        "tags": [
+          "route-controller"
+        ],
+        "summary": "修改路由数据: 只能修改 name、remark、state，必须要有ID",
+        "operationId": "updateRouteUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "altitude",
+            "in": "query",
+            "description": "海拔高度数组",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "公司ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "createTime",
+            "in": "query",
+            "description": "创建时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "创建者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "删除状态：0：正常，1：已删除",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "fileName",
+            "in": "query",
+            "description": "路由表格文件名，单位：米",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "infoPointName",
+            "in": "query",
+            "description": "信息点名称数组",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "latitude",
+            "in": "query",
+            "description": "纬度",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "length",
+            "in": "query",
+            "description": "路由长度，单位：米",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "longitude",
+            "in": "query",
+            "description": "经度",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "路由名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pointType",
+            "in": "query",
+            "description": "信息点类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "remark",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "光缆状态：0：正常，1：停用",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "subsectionName",
+            "in": "query",
+            "description": "分段名称数组",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "updateTime",
+            "in": "query",
+            "description": "修改时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "updater",
+            "in": "query",
+            "description": "修改者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/task/getTaskById": {
+      "get": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "根据任务ID，获取任务数据",
+        "operationId": "getTaskByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "id",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Task对象"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/task/getTaskPageByMissionIdOrTaskName": {
+      "get": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "获取任务列表，分页",
+        "operationId": "getTaskPageByMissionIdOrTaskNameUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "missionIdOrTaskName",
+            "description": "任务名称或者任务号",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageCurrent",
+            "description": "第n页",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageSize",
+            "description": "每页m条",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page«Task对象»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/task/getTaskPageByParams": {
+      "get": {
+        "tags": [
+          "task-controller"
+        ],
+        "summary": "获取任务列表，分页",
+        "operationId": "getTaskPageByParamsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "flyingLineId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "in": "body",
+            "name": "pageCurrent",
+            "description": "第n页",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageSize",
+            "description": "每页m条",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "taskId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "taskName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uavId",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page«Task对象»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/test/": {
+      "get": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "test",
+        "operationId": "testUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Test"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/test/addBloom": {
+      "get": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "addBloomFilter",
+        "operationId": "addBloomFilterUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/test/asyncTask": {
+      "get": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "asyncTask",
+        "operationId": "asyncTaskUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/test/bloom": {
+      "get": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "bloomFilter",
+        "operationId": "bloomFilterUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/test/getContentByTemplate": {
+      "get": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "getContentByTemplate",
+        "operationId": "getContentByTemplateUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      },
+      "head": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "getContentByTemplate",
+        "operationId": "getContentByTemplateUsingHEAD",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      },
+      "post": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "getContentByTemplate",
+        "operationId": "getContentByTemplateUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      },
+      "put": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "getContentByTemplate",
+        "operationId": "getContentByTemplateUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      },
+      "delete": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "getContentByTemplate",
+        "operationId": "getContentByTemplateUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      },
+      "options": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "getContentByTemplate",
+        "operationId": "getContentByTemplateUsingOPTIONS",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      },
+      "patch": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "getContentByTemplate",
+        "operationId": "getContentByTemplateUsingPATCH",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/test/mqttSendMsg": {
+      "post": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "mqttSendMsg",
+        "operationId": "mqttSendMsgUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/test/sendTextMail": {
+      "get": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "sendTextMail",
+        "operationId": "sendTextMailUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/test/transaction": {
+      "get": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "transaction",
+        "operationId": "transactionUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      },
+      "head": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "transaction",
+        "operationId": "transactionUsingHEAD",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      },
+      "post": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "transaction",
+        "operationId": "transactionUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      },
+      "put": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "transaction",
+        "operationId": "transactionUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      },
+      "delete": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "transaction",
+        "operationId": "transactionUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      },
+      "options": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "transaction",
+        "operationId": "transactionUsingOPTIONS",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      },
+      "patch": {
+        "tags": [
+          "test-controller"
+        ],
+        "summary": "transaction",
+        "operationId": "transactionUsingPATCH",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/track/getFlyingTrackDataByMissionId": {
+      "get": {
+        "tags": [
+          "track-controller"
+        ],
+        "summary": "根据 missionId 获取 飞行轨迹 数据，读取轨迹文件",
+        "operationId": "getFlyingTrackDataByMissionIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "missionId",
+            "description": "任务ID",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "飞行完成状态：0 飞行中，1 已完成",
+            "description": "flyingFinishState",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Heartbeat"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/track/getTrackById": {
+      "get": {
+        "tags": [
+          "track-controller"
+        ],
+        "summary": "根据id获取轨迹基本信息",
+        "operationId": "getTrackByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "id",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Track对象"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/track/getTrackDataByMissionId": {
+      "get": {
+        "tags": [
+          "track-controller"
+        ],
+        "summary": "根据 missionId 获取轨迹数据，读取轨迹文件",
+        "operationId": "getTrackDataByMissionIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "missionId 任务ID",
+            "description": "missionId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Heartbeat"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/uav/add": {
+      "post": {
+        "tags": [
+          "uav-controller"
+        ],
+        "summary": "添加无人机",
+        "operationId": "addUavUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "无人机所属公司，关联 company.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "createTime",
+            "in": "query",
+            "description": "创建时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "创建者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "删除状态：0：正常，1：已删除",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "factoryId",
+            "in": "query",
+            "description": "厂家ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "factoryOutTime",
+            "in": "query",
+            "description": "出厂日期",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "flyingArea",
+            "in": "query",
+            "description": "飞行面积：平方米",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "flyingLength",
+            "in": "query",
+            "description": "飞行里程: 米",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "imageUpload",
+            "in": "query",
+            "description": "图片上传数量",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "insureId",
+            "in": "query",
+            "description": "保险id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "maintenanceLength",
+            "in": "query",
+            "description": "保养后，剩余的飞行里程: 米",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "photograph",
+            "in": "query",
+            "description": "拍照数量",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "remark",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "状态：0空闲，1使用中，2维修中",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "uavId",
+            "in": "query",
+            "description": "无人机编号",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uavName",
+            "in": "query",
+            "description": "无人机名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uavTypeId",
+            "in": "query",
+            "description": "无人机类型，关联 uav_type.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "updateTime",
+            "in": "query",
+            "description": "修改时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "updater",
+            "in": "query",
+            "description": "修改者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "无人机所属用户，关联 user.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/uav/deleteById": {
+      "post": {
+        "tags": [
+          "uav-controller"
+        ],
+        "summary": "删除无人机数据",
+        "operationId": "delUavUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "无人机ID",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/uav/getUavById": {
+      "get": {
+        "tags": [
+          "uav-controller"
+        ],
+        "summary": "根据id获取信息",
+        "operationId": "getUavByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "无人机id",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Uav对象"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/uav/getUavListByParams": {
+      "get": {
+        "tags": [
+          "uav-controller"
+        ],
+        "summary": "获取无人机列表",
+        "operationId": "getUavListByParamsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "无人机所属公司，关联 company.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "状态：0空闲，1使用中，2维修中",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "uavId",
+            "in": "query",
+            "description": "无人机编号",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "uavName",
+            "in": "query",
+            "description": "无人机名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uavTypeId",
+            "in": "query",
+            "description": "无人机类型，关联 uav_type.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "无人机所属用户，关联 user.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Uav对象"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/uav/getUavPageByParams": {
+      "get": {
+        "tags": [
+          "uav-controller"
+        ],
+        "summary": "获取无人机列表，分页",
+        "operationId": "getUavPageUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "无人机所属公司，关联 company.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "body",
+            "name": "pageCurrent",
+            "description": "第n页",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageSize",
+            "description": "每页m条",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "状态：0空闲，1使用中，2维修中",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "uavId",
+            "in": "query",
+            "description": "无人机编号",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "uavName",
+            "in": "query",
+            "description": "无人机名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uavTypeId",
+            "in": "query",
+            "description": "无人机类型，关联 uav_type.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "无人机所属用户，关联 user.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page«Uav对象»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/uav/update": {
+      "post": {
+        "tags": [
+          "uav-controller"
+        ],
+        "summary": "修改无人机数据",
+        "operationId": "updateUavUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "无人机所属公司，关联 company.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "createTime",
+            "in": "query",
+            "description": "创建时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "创建者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "删除状态：0：正常，1：已删除",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "factoryId",
+            "in": "query",
+            "description": "厂家ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "factoryOutTime",
+            "in": "query",
+            "description": "出厂日期",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "flyingArea",
+            "in": "query",
+            "description": "飞行面积：平方米",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "flyingLength",
+            "in": "query",
+            "description": "飞行里程: 米",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "imageUpload",
+            "in": "query",
+            "description": "图片上传数量",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "insureId",
+            "in": "query",
+            "description": "保险id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "maintenanceLength",
+            "in": "query",
+            "description": "保养后，剩余的飞行里程: 米",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "photograph",
+            "in": "query",
+            "description": "拍照数量",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "remark",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "状态：0空闲，1使用中，2维修中",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "uavId",
+            "in": "query",
+            "description": "无人机编号",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uavName",
+            "in": "query",
+            "description": "无人机名称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "uavTypeId",
+            "in": "query",
+            "description": "无人机类型，关联 uav_type.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "updateTime",
+            "in": "query",
+            "description": "修改时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "updater",
+            "in": "query",
+            "description": "修改者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "无人机所属用户，关联 user.id",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/uavClient/getConfigInfoByDeviceId": {
+      "get": {
+        "tags": [
+          "无人机客户端和服务器交互的 api"
+        ],
+        "summary": "获取配置信息(网络相机)",
+        "operationId": "getConfigInfoByDeviceIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "deviceId",
+            "description": "deviceId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "body",
+            "name": "messageType",
+            "description": "messageType",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/uavClient/getUavBasicInfo": {
+      "get": {
+        "tags": [
+          "无人机客户端和服务器交互的 api"
+        ],
+        "summary": "获取uav基本信息，客户端需要更新 sign 字段，然后加密，当做 Authorization ，再添加请求头 sign",
+        "operationId": "getUavBasicInfoUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "deviceId",
+            "description": "deviceId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UavBasicInfo"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/user/add": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "summary": "添加用户",
+        "operationId": "addUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "avatar",
+            "in": "query",
+            "description": "头像地址",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "公司ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "createTime",
+            "in": "query",
+            "description": "创建时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "创建者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "删除状态，逻辑删除：0：正常，1：已删除",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "用户邮箱",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "loginDate",
+            "in": "query",
+            "description": "最后登录时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "loginIp",
+            "in": "query",
+            "description": "最后登录IP",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "nickName",
+            "in": "query",
+            "description": "用户昵称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "密码:前端md5加密",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "手机号码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "remark",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sex",
+            "in": "query",
+            "description": "用户性别（0男 1女 2未知）",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "帐号状态（0正常 1停用）",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "updateTime",
+            "in": "query",
+            "description": "修改时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "updater",
+            "in": "query",
+            "description": "修改者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "用户ID",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "userName",
+            "in": "query",
+            "description": "用户账号",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/user/deleteById": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "summary": "删除用户数据",
+        "operationId": "delUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "用户ID",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/user/getUserById": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "summary": "根据id获取信息",
+        "operationId": "getUserByIdUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "用户id",
+            "description": "id",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User对象"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/user/getUserByParams": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "summary": "根据参数获取用户列表",
+        "operationId": "getUserByParamsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "公司ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "用户邮箱",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "nickName",
+            "in": "query",
+            "description": "用户昵称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "密码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "手机号码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "roleId",
+            "in": "query",
+            "description": "权限ID",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sex",
+            "in": "query",
+            "description": "用户性别（0男 1女 2未知）",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "帐号状态（0正常 1停用）",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "uavId",
+            "in": "query",
+            "description": "权限ID",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "用户ID",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "userName",
+            "in": "query",
+            "description": "用户账号",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User对象"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/user/getUserList": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "summary": "获取用户列表",
+        "operationId": "getUserListUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User对象"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/user/getUserPageByParams": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "summary": "获取用户列表，分页",
+        "operationId": "getUserPageSearchUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "公司ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "用户邮箱",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "nickName",
+            "in": "query",
+            "description": "用户昵称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "pageCurrent",
+            "description": "第n页",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "in": "body",
+            "name": "pageSize",
+            "description": "每页m条",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "密码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "手机号码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "roleId",
+            "in": "query",
+            "description": "权限ID",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sex",
+            "in": "query",
+            "description": "用户性别（0男 1女 2未知）",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "帐号状态（0正常 1停用）",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "uavId",
+            "in": "query",
+            "description": "权限ID",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "用户ID",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "userName",
+            "in": "query",
+            "description": "用户账号",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Page«User对象»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/user/update": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "summary": "修改用户数据",
+        "operationId": "updateUserUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "avatar",
+            "in": "query",
+            "description": "头像地址",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "companyId",
+            "in": "query",
+            "description": "公司ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "createTime",
+            "in": "query",
+            "description": "创建时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "creator",
+            "in": "query",
+            "description": "创建者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "deleted",
+            "in": "query",
+            "description": "删除状态，逻辑删除：0：正常，1：已删除",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "用户邮箱",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键ID",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "loginDate",
+            "in": "query",
+            "description": "最后登录时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "loginIp",
+            "in": "query",
+            "description": "最后登录IP",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "nickName",
+            "in": "query",
+            "description": "用户昵称",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "密码:前端md5加密",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "手机号码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "remark",
+            "in": "query",
+            "description": "备注",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "sex",
+            "in": "query",
+            "description": "用户性别（0男 1女 2未知）",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "帐号状态（0正常 1停用）",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "updateTime",
+            "in": "query",
+            "description": "修改时间",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "updater",
+            "in": "query",
+            "description": "修改者，userId",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "用户ID",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "userName",
+            "in": "query",
+            "description": "用户账号",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/userRole/getUserRoleList": {
+      "get": {
+        "tags": [
+          "user-role-controller"
+        ],
+        "summary": "获取公司列表",
+        "operationId": "getCompanyListUsingGET_1",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/UserRole对象"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/userRole/test": {
+      "get": {
+        "tags": [
+          "user-role-controller"
+        ],
+        "summary": "test",
+        "operationId": "testUsingGET_1",
+        "produces": [
+          "*/*"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        },
+        "deprecated": false
+      }
+    }
+  },
+  "definitions": {
+    "Company对象": {
+      "type": "object",
+      "properties": {
+        "companyId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "公司ID"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "公司名称"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "creator": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建者，userId"
+        },
+        "deleted": {
+          "type": "integer",
+          "format": "int32",
+          "description": "删除状态：0：正常，1：已删除"
+        },
+        "email": {
+          "type": "string",
+          "description": "邮箱号，负责人联系方式"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "主键ID"
+        },
+        "leader": {
+          "type": "string",
+          "description": "公司负责人"
+        },
+        "phone": {
+          "type": "string",
+          "description": "手机号，负责人联系方式"
+        },
+        "remark": {
+          "type": "string",
+          "description": "备注"
+        },
+        "serviceState": {
+          "type": "integer",
+          "format": "int32",
+          "description": "服务状态：0：正常，1：停止服务"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "修改时间"
+        },
+        "updater": {
+          "type": "integer",
+          "format": "int32",
+          "description": "修改者，userId"
+        }
+      },
+      "title": "Company对象",
+      "description": "公司表"
+    },
+    "Device对象": {
+      "type": "object",
+      "properties": {
+        "companyId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "所属公司，关联 company.id"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "creator": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建人"
+        },
+        "deleted": {
+          "type": "integer",
+          "format": "int32",
+          "description": "删除状态：0 正常在用，1 删除"
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "设备ID"
+        },
+        "deviceName": {
+          "type": "string",
+          "description": "设备名称"
+        },
+        "deviceTypeId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "设备类型ID"
+        },
+        "factoryId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "厂家ID"
+        },
+        "factoryName": {
+          "type": "string",
+          "description": "厂家名称"
+        },
+        "factoryOutTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "出厂日期"
+        },
+        "flyingLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行里程"
+        },
+        "flyingTimeLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行时长"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "主键"
+        },
+        "insureDateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "保险时间：结束时间"
+        },
+        "insureId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "保险id"
+        },
+        "insurePhone": {
+          "type": "string",
+          "description": "保险电话"
+        },
+        "maintenanceDateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "保养时间：保养结束时间"
+        },
+        "maintenanceId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "保养记录ID"
+        },
+        "remark": {
+          "type": "string",
+          "description": "备注"
+        },
+        "state": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态：0空闲，1使用中，2维修中"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "修改时间"
+        },
+        "updater": {
+          "type": "integer",
+          "format": "int32",
+          "description": "修改人"
+        },
+        "userEmail": {
+          "type": "string",
+          "description": "负责人邮箱"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "（负责人）所属用户，关联 user.id"
+        },
+        "userName": {
+          "type": "string",
+          "description": "设备负责人"
+        },
+        "userPhone": {
+          "type": "string",
+          "description": "负责人电话"
+        }
+      },
+      "title": "Device对象",
+      "description": "网联设备表"
+    },
+    "Heartbeat": {
+      "type": "object",
+      "properties": {
+        "absoluteAltitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "airSpeed": {
+          "type": "number",
+          "format": "double"
+        },
+        "batteryCurrent": {
+          "type": "number",
+          "format": "double"
+        },
+        "batteryRemaining": {
+          "type": "number",
+          "format": "double"
+        },
+        "batteryVoltage": {
+          "type": "number",
+          "format": "double"
+        },
+        "cameraModel": {
+          "type": "string"
+        },
+        "cameraState": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "cameraType": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "climb": {
+          "type": "number",
+          "format": "double"
+        },
+        "deviceId": {
+          "type": "string"
+        },
+        "deviceType": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "exceptMessage": {
+          "type": "string"
+        },
+        "flightMode": {
+          "type": "string"
+        },
+        "gps1FixType": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gps1SatelliteVisible": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gps2FixType": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "gps2SatelliteVisible": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "groundSpeed": {
+          "type": "number",
+          "format": "double"
+        },
+        "hardwareArmState": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "heading": {
+          "type": "number",
+          "format": "double"
+        },
+        "heartbeatCacheStr": {
+          "type": "string"
+        },
+        "imageCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "latitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "longitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "messageType": {
+          "type": "string"
+        },
+        "missionId": {
+          "type": "string"
+        },
+        "networkState": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ntripStatus": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pitch": {
+          "type": "number",
+          "format": "double"
+        },
+        "relativeAltitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "roll": {
+          "type": "number",
+          "format": "double"
+        },
+        "sdCount": {
+          "type": "number",
+          "format": "double"
+        },
+        "sdRemaining": {
+          "type": "number",
+          "format": "double"
+        },
+        "sdState": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "sensorEnable": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "sensorHealth": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "sensorPresent": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "softwareArmState": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "softwareVersion": {
+          "type": "string"
+        },
+        "timeInAir": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "uavId": {
+          "type": "string"
+        },
+        "uavStatusText": {
+          "type": "string"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "vtolState": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "waypointCount": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "waypointCurrent": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "windSpeed": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "Heartbeat"
+    },
+    "LoginUser": {
+      "type": "object",
+      "properties": {
+        "companyId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "loginIp": {
+          "type": "string"
+        },
+        "loginTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "roleId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "source": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "userName": {
+          "type": "string"
+        }
+      },
+      "title": "LoginUser"
+    },
+    "OrderItem": {
+      "type": "object",
+      "properties": {
+        "asc": {
+          "type": "boolean"
+        },
+        "column": {
+          "type": "string"
+        }
+      },
+      "title": "OrderItem"
+    },
+    "Page«Company对象»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Company对象"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«Company对象»"
+    },
+    "Page«Route对象»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Route对象"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«Route对象»"
+    },
+    "Page«Task对象»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Task对象"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«Task对象»"
+    },
+    "Page«UavDataStatisticsVO»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UavDataStatisticsVO"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«UavDataStatisticsVO»"
+    },
+    "Page«Uav对象»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Uav对象"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«Uav对象»"
+    },
+    "Page«User对象»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/User对象"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«User对象»"
+    },
+    "Page«资源表»": {
+      "type": "object",
+      "properties": {
+        "countId": {
+          "type": "string"
+        },
+        "current": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "maxLimit": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "optimizeCountSql": {
+          "type": "boolean"
+        },
+        "orders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OrderItem"
+          }
+        },
+        "pages": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/资源表"
+          }
+        },
+        "searchCount": {
+          "type": "boolean"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "title": "Page«资源表»"
+    },
+    "Result": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "object"
+        },
+        "message": {
+          "type": "string"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "Result"
+    },
+    "Route对象": {
+      "type": "object",
+      "properties": {
+        "altitude": {
+          "type": "string",
+          "description": "海拔高度数组"
+        },
+        "companyId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "公司ID"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "creator": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建者，userId"
+        },
+        "deleted": {
+          "type": "integer",
+          "format": "int32",
+          "description": "删除状态：0：正常，1：已删除"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "路由表格文件名，单位：米"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "infoPointName": {
+          "type": "string",
+          "description": "信息点名称数组"
+        },
+        "latitude": {
+          "type": "string",
+          "description": "纬度"
+        },
+        "length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "路由长度，单位：米"
+        },
+        "longitude": {
+          "type": "string",
+          "description": "经度"
+        },
+        "name": {
+          "type": "string",
+          "description": "路由名称"
+        },
+        "pointType": {
+          "type": "string",
+          "description": "信息点类型"
+        },
+        "remark": {
+          "type": "string",
+          "description": "备注"
+        },
+        "state": {
+          "type": "integer",
+          "format": "int32",
+          "description": "光缆状态：0：正常，1：停用"
+        },
+        "subsectionName": {
+          "type": "string",
+          "description": "分段名称数组"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "修改时间"
+        },
+        "updater": {
+          "type": "integer",
+          "format": "int32",
+          "description": "修改者，userId"
+        }
+      },
+      "title": "Route对象",
+      "description": "路由表"
+    },
+    "Task对象": {
+      "type": "object",
+      "properties": {
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "creator": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建者，userId"
+        },
+        "deleted": {
+          "type": "integer",
+          "format": "int32",
+          "description": "删除状态：0：正常，1：已删除"
+        },
+        "deviceId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "设备ID"
+        },
+        "deviceTypeId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "设备类型"
+        },
+        "flierLand": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行员：降落员（接机员）"
+        },
+        "flierLandName": {
+          "type": "string",
+          "description": "接机员名称"
+        },
+        "flierTakeOff": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行员：起飞员（放飞员）"
+        },
+        "flierTakeOffName": {
+          "type": "string",
+          "description": "放飞员名称"
+        },
+        "flyingArea": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行面积：平方米"
+        },
+        "flyingLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行里程，单位：米"
+        },
+        "flyingLineId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "无人机航线ID"
+        },
+        "flyingLineName": {
+          "type": "string",
+          "description": "航线名称"
+        },
+        "flyingMode": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行模式：0 自由飞行，1 任务模式"
+        },
+        "flyingModeStr": {
+          "type": "string",
+          "description": "飞行模式：0 自由飞行，1 任务模式"
+        },
+        "flyingTimeLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行时长，单位：分钟"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "主键ID"
+        },
+        "missionId": {
+          "type": "string",
+          "description": "任务ID"
+        },
+        "remark": {
+          "type": "string",
+          "description": "备注"
+        },
+        "state": {
+          "type": "integer",
+          "format": "int32",
+          "description": "审批状态：0未审批，1同意，2拒绝，3放飞员确认，4接机员确认,5申请起飞,6确认起飞"
+        },
+        "stateStr": {
+          "type": "string",
+          "description": "状态字符串"
+        },
+        "taskName": {
+          "type": "string",
+          "description": "任务名称"
+        },
+        "trackId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "轨迹ID"
+        },
+        "uavId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "无人机ID"
+        },
+        "uavName": {
+          "type": "string",
+          "description": "无人机名称"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "修改时间"
+        },
+        "updater": {
+          "type": "integer",
+          "format": "int32",
+          "description": "修改者，userId"
+        }
+      },
+      "title": "Task对象",
+      "description": "任务表"
+    },
+    "Test": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "title": "Test"
+    },
+    "Track对象": {
+      "type": "object",
+      "properties": {
+        "absoluteAltitude": {
+          "type": "string",
+          "description": "绝对高度数组"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "deleted": {
+          "type": "integer",
+          "format": "int32",
+          "description": "删除状态：0：正常，1：已删除"
+        },
+        "heading": {
+          "type": "string",
+          "description": "航向角：无符号整型 (0~360)"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "主键ID"
+        },
+        "latitude": {
+          "type": "string",
+          "description": "纬度数组"
+        },
+        "longitude": {
+          "type": "string",
+          "description": "经度数组，字符串，逗号隔开"
+        },
+        "pitch": {
+          "type": "string",
+          "description": "俯仰角：浮点数(-180~180)"
+        },
+        "roll": {
+          "type": "string",
+          "description": "横滚角：浮点数(-180~180)"
+        },
+        "speed": {
+          "type": "string",
+          "description": "速度数组，实际速度应为地速"
+        },
+        "time": {
+          "type": "string",
+          "description": "时间数组"
+        }
+      },
+      "title": "Track对象",
+      "description": "无人机飞行轨迹表"
+    },
+    "UavBasicInfo": {
+      "type": "object",
+      "properties": {
+        "companyId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "公司ID"
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "无人机的网联设备ID"
+        },
+        "deviceTypeId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "无人机的网联设备的类型ID"
+        },
+        "sign": {
+          "type": "integer",
+          "format": "int64",
+          "description": "签名时间：毫秒"
+        },
+        "source": {
+          "type": "string",
+          "description": "客户端来源"
+        },
+        "uavId": {
+          "type": "string",
+          "description": "无人机ID"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "用户ID"
+        }
+      },
+      "title": "UavBasicInfo"
+    },
+    "UavDataStatisticsVO": {
+      "type": "object",
+      "properties": {
+        "companyCreateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "公司创建时间"
+        },
+        "companyId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "无人机所属公司，关联 company.id"
+        },
+        "companyName": {
+          "type": "string",
+          "description": "无人机所属公司名称"
+        },
+        "flyingLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "总的飞行里程: 米"
+        },
+        "imageUpload": {
+          "type": "integer",
+          "format": "int32",
+          "description": "图片上传数量"
+        },
+        "photograph": {
+          "type": "integer",
+          "format": "int32",
+          "description": "拍照数量"
+        },
+        "uavNumber": {
+          "type": "integer",
+          "format": "int32",
+          "description": "无人机数量"
+        }
+      },
+      "title": "UavDataStatisticsVO"
+    },
+    "Uav对象": {
+      "type": "object",
+      "properties": {
+        "companyId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "无人机所属公司，关联 company.id"
+        },
+        "companyName": {
+          "type": "string"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "creator": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建者，userId"
+        },
+        "deleted": {
+          "type": "integer",
+          "format": "int32",
+          "description": "删除状态：0：正常，1：已删除"
+        },
+        "deviceTypeId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "负载的网联设备：0 网联相机；1 地面站；2 图传设备；3 吊舱；4 定位器"
+        },
+        "email": {
+          "type": "string"
+        },
+        "factoryId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "厂家ID"
+        },
+        "factoryName": {
+          "type": "string",
+          "description": "厂家名称"
+        },
+        "factoryOutTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "出厂日期"
+        },
+        "flyingArea": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行面积：平方米"
+        },
+        "flyingLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "飞行里程: 米"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "主键"
+        },
+        "imageUpload": {
+          "type": "integer",
+          "format": "int32",
+          "description": "图片上传数量"
+        },
+        "insureId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "保险id"
+        },
+        "insureTimeEnd": {
+          "type": "string",
+          "format": "date-time",
+          "description": "保险结束时间"
+        },
+        "insureTimeStart": {
+          "type": "string",
+          "format": "date-time",
+          "description": "保险开始时间"
+        },
+        "maintenanceLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "保养后，剩余的飞行里程: 米"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "photograph": {
+          "type": "integer",
+          "format": "int32",
+          "description": "拍照数量"
+        },
+        "remark": {
+          "type": "string",
+          "description": "备注"
+        },
+        "state": {
+          "type": "integer",
+          "format": "int32",
+          "description": "状态：0空闲，1使用中，2维修中"
+        },
+        "uavId": {
+          "type": "string",
+          "description": "无人机编号"
+        },
+        "uavName": {
+          "type": "string",
+          "description": "无人机名称"
+        },
+        "uavTypeId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "无人机类型，关联 uav_type.id"
+        },
+        "uavTypeName": {
+          "type": "string"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "修改时间"
+        },
+        "updater": {
+          "type": "integer",
+          "format": "int32",
+          "description": "修改者，userId"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "无人机所属用户，关联 user.id"
+        },
+        "userName": {
+          "type": "string"
+        }
+      },
+      "title": "Uav对象",
+      "description": "无人机表"
+    },
+    "UserRole对象": {
+      "type": "object",
+      "properties": {
+        "roleId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "角色ID"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "用户ID"
+        }
+      },
+      "title": "UserRole对象",
+      "description": "用户和角色关联表"
+    },
+    "User对象": {
+      "type": "object",
+      "properties": {
+        "avatar": {
+          "type": "string",
+          "description": "头像地址"
+        },
+        "companyId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "公司ID"
+        },
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "creator": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建者，userId"
+        },
+        "deleted": {
+          "type": "integer",
+          "format": "int32",
+          "description": "删除状态，逻辑删除：0：正常，1：已删除"
+        },
+        "email": {
+          "type": "string",
+          "description": "用户邮箱"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "主键ID"
+        },
+        "loginDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最后登录时间"
+        },
+        "loginIp": {
+          "type": "string",
+          "description": "最后登录IP"
+        },
+        "nickName": {
+          "type": "string",
+          "description": "用户昵称"
+        },
+        "password": {
+          "type": "string",
+          "description": "密码:前端md5加密"
+        },
+        "phone": {
+          "type": "string",
+          "description": "手机号码"
+        },
+        "remark": {
+          "type": "string",
+          "description": "备注"
+        },
+        "sex": {
+          "type": "integer",
+          "format": "int32",
+          "description": "用户性别（0男 1女 2未知）"
+        },
+        "state": {
+          "type": "integer",
+          "format": "int32",
+          "description": "帐号状态（0正常 1停用）"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "修改时间"
+        },
+        "updater": {
+          "type": "integer",
+          "format": "int32",
+          "description": "修改者，userId"
+        },
+        "userId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "用户ID"
+        },
+        "userName": {
+          "type": "string",
+          "description": "用户账号"
+        }
+      },
+      "title": "User对象",
+      "description": "用户信息表"
+    },
+    "资源表": {
+      "type": "object",
+      "properties": {
+        "createTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "creator": {
+          "type": "integer",
+          "format": "int32",
+          "description": "创建者，userId"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "parentId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "资源的父级ID，后台接口的父ID为1，前端一级菜单的父ID为1"
+        },
+        "remark": {
+          "type": "string",
+          "description": "备注"
+        },
+        "resourceName": {
+          "type": "string",
+          "description": "资源名称"
+        },
+        "type": {
+          "type": "integer",
+          "format": "int32",
+          "description": "资源类型：0 顶级类型（含其余所有类型） 1 前端菜单，有子级，2 后台接口，没有子级"
+        },
+        "updateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "修改时间"
+        },
+        "updater": {
+          "type": "integer",
+          "format": "int32",
+          "description": "修改者，userId"
+        }
+      },
+      "title": "资源表"
+    }
+  }
+}

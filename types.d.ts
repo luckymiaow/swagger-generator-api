@@ -40,6 +40,13 @@ export type ModelOption = {
   transform?: string | TransformModel;
 
   /**
+   * 写入model前的操作
+   * @param model 
+   * @returns 
+   */
+  onBeforeWriteFile?: (model: ModelType) => ModelType
+
+  /**
    * 是否在目录生成汇总导出文件，true将生成index.ts的文件 string 将在output目录生成该string的文件
    * @default true
    */
@@ -60,10 +67,10 @@ export type ModelOption = {
 
 export type ApiOption =
   | ({
-      transform?: TransformApi;
-    
-    }
-  | {
+    transform?: TransformApi;
+
+  }
+    | {
       /**
        *输出文件地址
        *@default apis/index.ts
@@ -77,7 +84,7 @@ export type ApiOption =
        * 为函数时应返回转换后的文件
        */
       transform: string;
-    })  & ApiOptionBase;
+    }) & ApiOptionBase;
 
 export type ApiOptionBase = {
   /**
@@ -95,7 +102,7 @@ export type ApiOptionBase = {
   /**
    * 在写入action前，可对action做一些操作
    */
-  onBeforeActionWriteFile?:(action:ApiAction)=>ApiAction
+  onBeforeActionWriteFile?: (action: ApiAction) => ApiAction
 
 }
 
@@ -125,8 +132,8 @@ export type Dependency = {
   modules: string; //导入的模块
 };
 
-export type TransformApi = (apis: ApiType, fileId: string) => Array<TransformReturn> 
-                                                              | TransformReturn;
+export type TransformApi = (apis: ApiType, fileId: string) => Array<TransformReturn>
+  | TransformReturn;
 
 export type TransformReturn = {
   output: string | ((fileId: string) => string);
@@ -188,10 +195,10 @@ export type ApiReturnResults = {
 
 export type IApiDocV3 = {
   version: 'v3'
-  apiDocs: Array<ISettingsV3> 
+  apiDocs: Array<ISettingsV3>
 };
 
-export declare function defineConfig(config: IApiDocV3 ): IApiDocV3;
+export declare function defineConfig(config: IApiDocV3): IApiDocV3;
 
 
 export default function main(config: ISettingsV3[]): Promise<void>

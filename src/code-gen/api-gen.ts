@@ -90,7 +90,7 @@ function getResponseType(responseBody?: IApiBody) {
     if (contentTypes.find(c => /\/json$/.test(c))) return 'json';
   }
 
-  return 'text';
+  return 'json';
 }
 
 function getParameters(data?: IApiParameter[] | undefined): string | ApiProperties[] | undefined {
@@ -137,9 +137,10 @@ function getResultType(responseBody?: IApiBody) {
   const contentTypes = Object.keys(responseBody.content);
 
   const blobContentType = contentTypes.find(c => /\/octet-stream$/.test(c));
-  const jsonContentType = contentTypes.find(c => /\/json$/.test(c));
 
   if (blobContentType) return 'Blob';
+
+  const jsonContentType = contentTypes.find(c => /\/json|\*\/\*$/.test(c));
 
   if (jsonContentType) {
     resultTypeRef = responseBody.content[jsonContentType];
