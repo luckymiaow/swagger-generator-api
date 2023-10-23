@@ -24,7 +24,9 @@ handlebars.registerHelper('properties', (data: Properties[] | string, definition
   return new handlebars.SafeString(joinProperties(data, definition, isValue));
 });
 
-async function loadApiDesc(docUrl: string): Promise<OpenAPI3> {
+async function loadApiDesc(docUrl: ISettingsV3['url']): Promise<OpenAPI3> {
+  if (typeof docUrl === 'function')
+    docUrl = await docUrl();
   const api = await swaggerParser.parse(docUrl) as any
   if (api.swagger) {
     const res = (await convertObj(api, { warnOnly: true, nopatch: true }))

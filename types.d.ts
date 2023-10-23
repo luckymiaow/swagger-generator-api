@@ -1,8 +1,10 @@
+import { OpenAPI } from "openapi-types";
+
 export interface ISettingsV3 {
   /**
    * swagger json url or file path
    */
-  url: string;
+  url: string | OpenAPI.Document | (() => Promise<OpenAPI.Document>);
   basePath: string;
   template: Template;
 }
