@@ -37,11 +37,24 @@ async function loadApiV3Doc(doc: OpenAPI3, setting: ISettingsV3): Promise<{
   }
 }
 
-function loadApiV2Doc(doc: any): Promise<{
+async function loadApiV2Doc(doc: any, setting: ISettingsV3): Promise<{
   apis: ApiType
   models: ModelType[]
 }> {
-  return parseV2(doc)
+  const res = await parseV2(doc);
+  if (setting.template.api && setting.template.api.onBeforeActionWriteFile) {
+    const onBeforeActionWriteFile = setting.template.api.onBeforeActionWriteFile
+    res.apis.actions = res.apis.actions?.map(e => onBeforeActionWriteFile(e))
+    res.apis.controllers?.forEach((item) => {
+      item.actions = item.actions?.map(e => onBeforeActionWriteFile(e))
+    })
+    res.apis.namespaces?.forEach((v) => {
+      v.controllers.forEach((item) => {
+        item.actions = item.actions?.map(e => onBeforeActionWriteFile(e))
+      })
+    })
+  }
+  return res;
 }
 
 async function loadApiDesc(setting: ISettingsV3) {
@@ -49,7 +62,7 @@ async function loadApiDesc(setting: ISettingsV3) {
     setting.url = await setting.url();
   const api = await swaggerParser.parse(setting.url) as any
   if (api.swagger)
-    return loadApiV2Doc(api);
+    return loadApiV2Doc(api, setting);
 
   else if (api.openapi)
     return loadApiV3Doc(api, setting)
