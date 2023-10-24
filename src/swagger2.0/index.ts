@@ -35,17 +35,17 @@ function genDoc(swaggerDoc: Swagger2): ApiType {
       }
     }
     else {
-      const name = names[0]
-      if (!(name in apiController)) {
-        apiController[name] = {
-          name: upperFirst(name),
+      const controllerName = names[0]
+      if (!(controllerName in apiController)) {
+        apiController[controllerName] = {
+          name: upperFirst(controllerName),
           description: (obj as any)?.[Object.keys(obj)?.[0]]?.tags?.[0],
           actions: [],
         }
       }
       for (const key in obj) {
         const action = obj[key as HttpMethod];
-        apiController[name].actions.push(getAction(name, path, key, action))
+        apiController[controllerName].actions.push(getAction(names[names.length - 1], path, key, action))
       }
     }
   }
