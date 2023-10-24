@@ -192,7 +192,7 @@ function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string,
   return controllers;
 }
 
-function fetchApis(doc: OpenAPI3, definedTypes: DotNetTypes, setting: ISettingsV3) {
+export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting: ISettingsV3) {
   const apiRoot: ApiNode = {};
 
   for (const apiPath in doc.paths) {
@@ -267,14 +267,11 @@ function handlebarsTransform(text: string, data: ApiType): string {
 }
 
 export async function generateApisAsync(
-  setting: ISettingsV3,
-  doc: OpenAPI3,
-  definedTypes: DotNetTypes,
+  apis: ApiType,
   models: ModelReturnResults,
+  setting: ISettingsV3,
 ): Promise<ApiReturnResults> {
-  const res = fetchApis(doc, definedTypes, setting);
-
-  res.dependencys = models.models.map((e) => {
+  apis.dependencys = models.models.map((e) => {
     return {
       id: e.key,
       modules: e.key,
@@ -284,7 +281,7 @@ export async function generateApisAsync(
 
   const paths: Record<string, string> = {}
 
-  if (setting.template.api === false) return { apis: res, paths: {} }
+  if (setting.template.api === false) return { apis, paths: {} }
 
   const apiOption = setting.template.api as ApiOption
 
@@ -298,14 +295,14 @@ export async function generateApisAsync(
       prettier: boolean
       extension: string
     };
-    const code = handlebarsTransform(apiConfig.transform, res);
+    const code = handlebarsTransform(apiConfig.transform, apis);
     const fileId = getFileId(setting.basePath, apiConfig.output, 'index', 'apis', apiConfig.extension);
     await writeFileWithDirectoryCreation(fileId, apiConfig.prettier !== false ? prettierCode(code) : code);
     paths.index = fileId
   }
   else {
     const fileId = getFileId(setting.basePath, undefined, 'index', 'apis', apiOption.extension);
-    const genRes = apiOption.transform(res, fileId);
+    const genRes = apiOption.transform(apis, fileId);
     if (!genRes)
       throw new Error('返回正确的结果 Array<TransformReturn>  | TransformReturn')
 
@@ -322,5 +319,5 @@ export async function generateApisAsync(
     }
   }
 
-  return { apis: res, paths }
+  return { apis, paths }
 }

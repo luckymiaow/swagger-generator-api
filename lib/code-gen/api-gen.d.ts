@@ -1,4 +1,5 @@
 import type { OpenAPI3 } from '../schema';
-import type { ApiReturnResults, ISettingsV3, ModelReturnResults } from '../../types';
+import type { ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults } from '../../types';
 import type { DotNetTypes } from './types';
-export declare function generateApisAsync(setting: ISettingsV3, doc: OpenAPI3, definedTypes: DotNetTypes, models: ModelReturnResults): Promise<ApiReturnResults>;
+export declare function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting: ISettingsV3): ApiType;
+export declare function generateApisAsync(apis: ApiType, models: ModelReturnResults, setting: ISettingsV3): Promise<ApiReturnResults>;

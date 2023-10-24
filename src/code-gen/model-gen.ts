@@ -1,12 +1,10 @@
 import handlebars from 'handlebars';
-import type { ISettingsV3, ModelOption, ModelReturnResults, ModelType, Properties } from '../../types';
+import type { ISettingsV3, ModelOption, ModelType, Properties } from '../../types';
 import { defaultModelTransform } from '../presets';
 import type { DotNetTypes, IDotnetType } from './types';
 import { detectDependsTypes, getModelsFileId, isModelType, makeFilename, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
 
-export async function generateModelsAsync(types: DotNetTypes, setting: ISettingsV3): Promise<ModelReturnResults> {
-  const models = fetchModelsAsync(types);
-
+export function generateModelsAsync(models: ModelType[], setting: ISettingsV3) {
   const modelsPath: Record<string, string> = {};
 
   let dtsPath = ''

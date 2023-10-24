@@ -8,11 +8,11 @@ import helpers from 'handlebars-helpers';
 import handlebars from 'handlebars';
 import ora from 'ora';
 import swaggerParser from '@apidevtools/swagger-parser';
-import { convertObj } from 'swagger2openapi';
-import type { IApiDocV3, ISettingsV3, ModelType, Properties } from '../types';
+import type { ApiType, IApiDocV3, ISettingsV3, ModelType, Properties } from '../types';
+import { parseV2 } from './swagger2.0';
 import type { OpenAPI3, OpenAPI3Schemas } from './schema';
 import { cleanAsync } from './code-gen/utils';
-import { buildTypes, generateApisAsync, generateModelsAsync } from './code-gen';
+import { buildTypes, fetchApisAsync as fetchV3ApisAsync, fetchModelsAsync as fetchV3ModelsAsync, generateApisAsync, generateModelsAsync } from './code-gen';
 import { joinProperties } from './presets';
 
 const registeredHelpers = helpers();
@@ -24,18 +24,37 @@ handlebars.registerHelper('properties', (data: Properties[] | string, definition
   return new handlebars.SafeString(joinProperties(data, definition, isValue));
 });
 
-async function loadApiDesc(docUrl: ISettingsV3['url']): Promise<OpenAPI3> {
-  if (typeof docUrl === 'function')
-    docUrl = await docUrl();
-  const api = await swaggerParser.parse(docUrl) as any
-  if (api.swagger) {
-    const res = (await convertObj(api, { warnOnly: true, nopatch: true }))
-    return res.openapi as OpenAPI3;
+async function loadApiV3Doc(doc: OpenAPI3, setting: ISettingsV3): Promise<{
+  apis: ApiType
+  models: ModelType[]
+}> {
+  const types = buildTypes(doc.components?.schemas as OpenAPI3Schemas);
+  const apis = await fetchV3ApisAsync(doc, types, setting)
+  const models = await fetchV3ModelsAsync(types)
+  return {
+    apis,
+    models,
   }
-  else if (api.openapi) {
-    return api
-  }
-  else { throw new Error('这是未知版本的API文档'); }
+}
+
+function loadApiV2Doc(doc: any): Promise<{
+  apis: ApiType
+  models: ModelType[]
+}> {
+  return parseV2(doc)
+}
+
+async function loadApiDesc(setting: ISettingsV3) {
+  if (typeof setting.url === 'function')
+    setting.url = await setting.url();
+  const api = await swaggerParser.parse(setting.url) as any
+  if (api.swagger)
+    return loadApiV2Doc(api);
+
+  else if (api.openapi)
+    return loadApiV3Doc(api, setting)
+
+  else throw new Error('这是未知版本的API文档');
 }
 
 export default async function main(settings: ISettingsV3[]) {
@@ -56,21 +75,16 @@ export default async function main(settings: ISettingsV3[]) {
 
       loading.info(`开始生成[${setting.url}]...`);
 
-      const doc = await loadApiDesc(setting.url);
-
-      const types = buildTypes(doc.components?.schemas as OpenAPI3Schemas);
+      const { models, apis } = await loadApiDesc(setting);
 
       await cleanAsync(setting.basePath);
 
-      const models = await generateModelsAsync(types, setting);
+      const modelsRef = await generateModelsAsync(models, setting);
 
-      let apis;
-
-      if (doc.paths)
-        apis = await generateApisAsync(setting, doc, types, models);
+      const apiRef = await generateApisAsync(apis, modelsRef, setting);
 
       if (setting.template.onAfterWriteFile)
-        setting.template.onAfterWriteFile(models, apis);
+        setting.template.onAfterWriteFile(modelsRef, apiRef);
       loading.succeed(`[${setting.url}]文档生成完成!`);
     });
   }
