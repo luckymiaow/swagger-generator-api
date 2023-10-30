@@ -93,8 +93,9 @@ function getResponseType(responseBody?: IApiBody) {
   return 'json';
 }
 
-function getParameters(data?: IApiParameter[] | undefined): string | ApiProperties[] | undefined {
-  return data?.map((e) => {
+function getParameters(data: IApiParameter[] | undefined | null, type: Array<'query' | 'header' | 'path' | 'cookie'>): string | ApiProperties[] | undefined {
+  return data?.flatMap((e) => {
+    if (type.includes(e.in)) return []
     return {
       name: e.name,
       description: e.description,
@@ -167,7 +168,8 @@ function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3
     limit: item.auth as any,
     description: item.summary,
     responseType: getResponseType(item.responseBody),
-    parameters: getParameters(item?.parameters as IApiParameter[]),
+    parameters: getParameters(item?.parameters as IApiParameter[], ['path', 'query']),
+    header: getParameters(item?.parameters as IApiParameter[], ['header']),
     requestBody: getRequestBody(item.requestBody as IApiBody),
     returnType: getResultType(item.responseBody),
   } as ApiAction
