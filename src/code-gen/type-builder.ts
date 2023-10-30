@@ -123,180 +123,183 @@ export function buildType(
   types: DotNetTypes,
   schemas?: OpenAPI3Schemas,
 ): IDotnetType {
-  if ('type' in obj) {
-    const schema = obj as OpenAPI3SchemaObject;
-    if (schema.builtType)
-      return schema.builtType as IDotnetType;
+  if (obj) {
+    if ('type' in obj) {
+      const schema = obj as OpenAPI3SchemaObject;
+      if (schema.builtType)
+        return schema.builtType as IDotnetType;
 
-    const res = {};
-    schema.builtType = res;
-    const isInterface = schema.isInterface;
+      const res = {};
+      schema.builtType = res;
+      const isInterface = schema.isInterface;
 
-    let isGenericType = schema.isGenericType;
-    // eslint-disable-next-line prefer-const
-    let isGenericTypeDefinition = schema.isGenericTypeDefinition;
-    // eslint-disable-next-line prefer-const
-    let isGenericParameter = schema.isGenericParameter;
-    // eslint-disable-next-line prefer-const
-    let comments = schema.description;
-    // eslint-disable-next-line prefer-const
-    let isEnum = schema.enum && schema.enum.length > 0;
+      let isGenericType = schema.isGenericType;
+      // eslint-disable-next-line prefer-const
+      let isGenericTypeDefinition = schema.isGenericTypeDefinition;
+      // eslint-disable-next-line prefer-const
+      let isGenericParameter = schema.isGenericParameter;
+      // eslint-disable-next-line prefer-const
+      let comments = schema.description;
+      // eslint-disable-next-line prefer-const
+      let isEnum = schema.enum && schema.enum.length > 0;
 
-    let enumValues = schema.enumValues;
-    let properties: { [key: string]: IPropertyInfo } | undefined;
-    let isArray;
-    let name: string = schema.type!;
-    let elementType, baseType, genericTypeDefinition;
-    let genericArguments: IDotnetType[] | undefined;
-    let isBuildInType = false;
+      let enumValues = schema.enumValues;
+      let properties: { [key: string]: IPropertyInfo } | undefined;
+      let isArray;
+      let name: string = schema.type!;
+      let elementType, baseType, genericTypeDefinition;
+      let genericArguments: IDotnetType[] | undefined;
+      let isBuildInType = false;
 
-    if (schema.type == 'object') {
-      if (schema.properties) {
-        properties = {};
-        const propertySchemas = schema.properties;
-        const requiredProperties = schema.required ?? [];
-        for (const propertyName in propertySchemas) {
-          const propertyDef = propertySchemas[propertyName] as OpenAPI3SchemaObject;
-          const typeRef = buildType(propertyDef, types, schemas);
-          let propertyNullable = propertyDef.nullable;
-          if (requiredProperties.includes(propertyName))
-            propertyNullable = false;
+      if (schema.type == 'object') {
+        if (schema.properties) {
+          properties = {};
+          const propertySchemas = schema.properties;
+          const requiredProperties = schema.required ?? [];
+          for (const propertyName in propertySchemas) {
+            const propertyDef = propertySchemas[propertyName] as OpenAPI3SchemaObject;
+            const typeRef = buildType(propertyDef, types, schemas);
+            let propertyNullable = propertyDef.nullable;
+            if (requiredProperties.includes(propertyName))
+              propertyNullable = false;
 
-          properties[propertyName] = {
-            propertyName,
-            typeRef,
-            nullable: propertyNullable,
-            comments: propertyDef.description,
-          };
-        }
-      }
-      if (schema.allOf && schema.allOf.length == 1)
-        baseType = buildType(schema.allOf[0], types, schemas);
-
-      if (schema.isGenericType) {
-        if (!schema.isGenericTypeDefinition) {
-          if (schema.genericTypeDefinition) {
-            genericTypeDefinition = buildType(schema.genericTypeDefinition, types, schemas);
-            isBuildInType = genericTypeDefinition.isBuildInType;
-            name = genericTypeDefinition.name;
+            properties[propertyName] = {
+              propertyName,
+              typeRef,
+              nullable: propertyNullable,
+              comments: propertyDef.description,
+            };
           }
-          else {
-            if (schema.additionalProperties) {
-              isBuildInType = true;
-              name = 'Record';
+        }
+        if (schema.allOf && schema.allOf.length == 1)
+          baseType = buildType(schema.allOf[0], types, schemas);
+
+        if (schema.isGenericType) {
+          if (!schema.isGenericTypeDefinition) {
+            if (schema.genericTypeDefinition) {
+              genericTypeDefinition = buildType(schema.genericTypeDefinition, types, schemas);
+              isBuildInType = genericTypeDefinition.isBuildInType;
+              name = genericTypeDefinition.name;
             }
             else {
-              throw `genericTypeDefinition lost: ${schema.type}`;
+              if (schema.additionalProperties) {
+                isBuildInType = true;
+                name = 'Record';
+              }
+              else {
+                throw `genericTypeDefinition lost: ${schema.type}`;
+              }
             }
+          }
+
+          if (schema.genericArguments) {
+            genericArguments = [];
+            for (const arg of schema.genericArguments)
+              genericArguments.push(buildType(arg, types, schemas));
+          }
+        }
+        else if (schema.additionalProperties) {
+          isBuildInType = true;
+          name = 'Record';
+          isGenericType = true;
+          if (typeof schema.additionalProperties == 'boolean')
+            genericArguments = [buildingTypes.string, buildingTypes.string];
+          else
+            genericArguments = [buildingTypes.string, buildType(schema.additionalProperties, types, schemas)];
+        }
+      }
+      else if (schema.type) {
+        switch (schema.type) {
+          case 'array':
+            isArray = true;
+            elementType = buildType(schema.items!, types, schemas);
+            name = `${elementType.name}[]`;
+            break;
+          case 'integer':
+            name = 'number';
+            break;
+          case 'number':
+            break;
+          case 'boolean':
+            break;
+          case 'string':
+            if (schema.format == 'date-time')
+              name = 'Date';
+
+            break;
+        }
+
+        if (schema.enum && !enumValues) {
+          enumValues = [];
+          if (typeof schema.enum![0] === 'string') {
+            (schema.enum! as string[]).forEach((key, value) => {
+              enumValues!.push({ key, value });
+            });
+          }
+          else if (typeof schema.enum![0] === 'number') {
+            (schema.enum as number[]).forEach((value, index) => {
+              enumValues!.push({ key: `Item${index + 1}`, value });
+            });
           }
         }
 
-        if (schema.genericArguments) {
-          genericArguments = [];
-          for (const arg of schema.genericArguments)
-            genericArguments.push(buildType(arg, types, schemas));
-        }
+        isBuildInType = !isEnum;
       }
-      else if (schema.additionalProperties) {
-        isBuildInType = true;
-        name = 'Record';
-        isGenericType = true;
-        if (typeof schema.additionalProperties == 'boolean')
-          genericArguments = [buildingTypes.string, buildingTypes.string];
-        else
-          genericArguments = [buildingTypes.string, buildType(schema.additionalProperties, types, schemas)];
-      }
-    }
-    else if (schema.type) {
-      switch (schema.type) {
-        case 'array':
-          isArray = true;
-          elementType = buildType(schema.items!, types, schemas);
-          name = `${elementType.name}[]`;
-          break;
-        case 'integer':
-          name = 'number';
-          break;
-        case 'number':
-          break;
-        case 'boolean':
-          break;
-        case 'string':
-          if (schema.format == 'date-time')
-            name = 'Date';
+      else if (schema.allOf) {
+        if (schema.allOf.length == 1)
+          return buildType(schema.allOf[0], types, schemas);
 
-          break;
+        throw 'not supported.';
       }
 
-      if (schema.enum && !enumValues) {
-        enumValues = [];
-        if (typeof schema.enum![0] === 'string') {
-          (schema.enum! as string[]).forEach((key, value) => {
-            enumValues!.push({ key, value });
-          });
-        }
-        else if (typeof schema.enum![0] === 'number') {
-          (schema.enum as number[]).forEach((value, index) => {
-            enumValues!.push({ key: `Item${index + 1}`, value });
-          });
-        }
+      return Object.assign(res, {
+        baseType,
+        isBuildInType,
+        name,
+        fullName: name,
+        namespace: '',
+        properties,
+        isEnum,
+        enumValues,
+        isArray,
+        elementType,
+        isInterface,
+        isGenericType,
+        isGenericTypeDefinition,
+        isGenericParameter,
+        genericTypeDefinition,
+        genericArguments,
+        comments,
+      });
+    }
+    else if ('$ref' in obj) {
+      const ref = obj.$ref as string;
+      const refId = ref.substring(ref.lastIndexOf('/') + 1);
+      if (refId in types)
+        return types[refId];
+
+      if (schemas) {
+        const refSchema = schemas[refId];
+        if (refSchema)
+          return findOrBuildType(refId, refSchema, types, schemas);
       }
-
-      isBuildInType = !isEnum;
+      throw `type ref not found: ${refId}`;
     }
-    else if (schema.allOf) {
-      if (schema.allOf.length == 1)
-        return buildType(schema.allOf[0], types, schemas);
+    else if ('allOf' in obj) {
+      const allOf = obj.allOf;
+      if (allOf && allOf.length == 1)
+        return buildType(allOf[0], types, schemas);
 
-      throw 'not supported.';
+      throw 'not support';
     }
-
-    return Object.assign(res, {
-      baseType,
-      isBuildInType,
-      name,
-      fullName: name,
-      namespace: '',
-      properties,
-      isEnum,
-      enumValues,
-      isArray,
-      elementType,
-      isInterface,
-      isGenericType,
-      isGenericTypeDefinition,
-      isGenericParameter,
-      genericTypeDefinition,
-      genericArguments,
-      comments,
-    });
-  }
-  else if ('$ref' in obj) {
-    const ref = obj.$ref as string;
-    const refId = ref.substring(ref.lastIndexOf('/') + 1);
-    if (refId in types)
-      return types[refId];
-
-    if (schemas) {
-      const refSchema = schemas[refId];
-      if (refSchema)
-        return findOrBuildType(refId, refSchema, types, schemas);
+    else if ('anyOf' in obj) {
+      throw `not impletemented: \n${+JSON.stringify(obj, null, 2)}`;
     }
-    throw `type ref not found: ${refId}`;
+    else if ('oneOf' in obj) {
+      throw `not impletemented: \n${JSON.stringify(obj, null, 2)}`;
+    }
   }
-  else if ('allOf' in obj) {
-    const allOf = obj.allOf;
-    if (allOf && allOf.length == 1)
-      return buildType(allOf[0], types, schemas);
 
-    throw 'not support';
-  }
-  else if ('anyOf' in obj) {
-    throw `not impletemented: \n${+JSON.stringify(obj, null, 2)}`;
-  }
-  else if ('oneOf' in obj) {
-    throw `not impletemented: \n${JSON.stringify(obj, null, 2)}`;
-  }
   return {
     name: 'any',
     fullName: 'any',

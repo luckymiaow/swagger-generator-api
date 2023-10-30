@@ -113,6 +113,7 @@ export default async function main(settings: ISettingsV3[]) {
       catch (err: any) {
         taskCount++
         loading.warn(err.toString());
+        throw err;
       }
     }
   }

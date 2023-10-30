@@ -1,6 +1,6 @@
 {
   "name": "swagger-generator-api",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "适用于swagger2、openApi3的接口文档生成工具",
   "main": "./lib/index.js",
   "types": "types.d.ts",
@@ -40,7 +40,6 @@
     "inquirer": "8.0.0",
     "ora": "5.4.1",
     "prettier": "^2.7.1",
-    "swagger2openapi": "^7.0.8",
     "typescript-string-operations": "^1.4.1",
     "unconfig": "^0.3.11"
   },

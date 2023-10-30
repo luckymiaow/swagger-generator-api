@@ -5,6 +5,7 @@
  * @LastEditors: luckymiaow
  */
 
+import camelCase from 'camelcase';
 import type { ApiAction, ApiController, ApiProperties, ApiType, HttpMethod, ModelType } from '../../types'
 import type { Definition, Definitions, Parameters, Paths, Propertie, Responses, Swagger2 } from './type'
 
@@ -56,10 +57,17 @@ function genDoc(swaggerDoc: Swagger2): ApiType {
 }
 
 function getAction(name: string, url: string, method: string, pathObj: Paths): ApiAction {
+  const actionLower = name.toLowerCase();
+  const methodLower = method.toLowerCase();
+  let fnName = camelCase(name, { pascalCase: true });
+  if (!(actionLower.startsWith(methodLower) || actionLower.endsWith(methodLower)))
+    fnName += `_${camelCase(method, { pascalCase: true })}`;
+  if (!actionLower.endsWith('async')) fnName += 'Async';
+
   const res = {
     url,
     method: method.toLocaleUpperCase() as any,
-    name: `${upperFirst(extractMethodNames(name))}_${upperFirst(method)}Async`,
+    name: fnName,
     responseType: getResponseType(pathObj),
     returnType: getResultType(pathObj.responses),
     requestBody: getParameters(pathObj.parameters, ['body']),
