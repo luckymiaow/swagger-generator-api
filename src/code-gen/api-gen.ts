@@ -95,7 +95,7 @@ function getResponseType(responseBody?: IApiBody) {
 
 function getParameters(data: IApiParameter[] | undefined | null, type: Array<'query' | 'header' | 'path' | 'cookie'>): string | ApiProperties[] | undefined {
   return data?.flatMap((e) => {
-    if (type.includes(e.in)) return []
+    if (!type.includes(e.in)) return []
     return {
       name: e.name,
       description: e.description,
