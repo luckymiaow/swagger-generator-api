@@ -89,9 +89,10 @@ ${getClassString()}{{/each}}`;
 
 export const defaultApisTransform = `
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+{{#if data.dependencys}}
 import { {{#each data.dependencys}} {{this.modules}},
  {{/each}} } from '../models';
-
+{{/if}}
  //可以根据需要自行替换
 export class apiOptions{
   static async request<TData, TResult>(options: AxiosRequestConfig<TData>): Promise<TResult> {
@@ -153,9 +154,9 @@ export class DefaultApisTransform {
   getAction(action: ApiAction) {
     const strs: string[] = []
     strs.push(`${action.name} (`);
-    if (action.parameters)
+    if (action.parameters?.length)
       strs.push(`params: ${joinProperties(action.parameters, 'interface', false)},`);
-    if (action.requestBody)
+    if (action.requestBody?.length)
       strs.push(`data: ${joinProperties(action.requestBody, 'interface', false)},`);
     strs.push(
       `options?: AxiosRequestConfig ): Promise<${this.getReturnType(action)}> {\n`,

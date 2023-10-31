@@ -39,6 +39,64 @@ export function generateModelsAsync(models: ModelType[], setting: ISettingsV3) {
   return { models, paths: modelsPath, dtsPath }
 }
 
+export function getModelByIDotnetType(type: IDotnetType, key: string): ModelType {
+  const isClass = type.isInterface === false;
+  const item: ModelType = {
+    definition: isClass ? 'class' : 'interface',
+    name: makeTypename(type),
+    key,
+    dependencys: [],
+    properties: [],
+  }
+  if (!type.isEnum) {
+    const dependsTypes = detectDependsTypes(type);
+    for (const dependType of Object.values(dependsTypes)) {
+      const dependModule = makeFilename(dependType);
+      item.dependencys?.push({
+        id: dependModule,
+        modules: dependType.name,
+      })
+    }
+    if (type.properties) {
+      const properties = type.properties!;
+      for (const propertyName in properties) {
+        const property = properties[propertyName];
+        const propertyType = property.typeRef;
+        const propertie: Properties = {
+          name: propertyName,
+          type: [makeTypename(propertyType)],
+          description: property.comments,
+          value: 'null',
+          required: !property.nullable,
+        }
+        if (property.nullable)
+          propertie.type?.push('null', 'undefined')
+
+        if (isClass) {
+          if (propertyType.isArray) propertie.value = '[]'
+          else if (property.nullable) propertie.value = 'null'
+          else if (propertyType.isBuildInType) propertie.value = getBuildInTypeValue(propertyType.name)
+          else if (propertyType.isEnum)
+            propertie.value = '0'
+        }
+        item.properties?.push(propertie)
+      }
+    }
+    if (type.baseType)
+      item.extends = makeTypename(type.baseType)
+  }
+
+  if (type.isEnum) {
+    item.definition = 'enum';
+    item.properties = type.enumValues?.map(e => ({ name: e.key, value: e.value }))
+  }
+
+  if (type.comments)
+    item.description = type.comments
+
+  return item
+}
+
 export function fetchModelsAsync(types: DotNetTypes): ModelType[] {
   const models: ModelType[] = [];
 
@@ -60,63 +118,8 @@ export function fetchModelsAsync(types: DotNetTypes): ModelType[] {
 
   for (const key in separatedTypes) {
     const types = separatedTypes[key];
-    for (const type of types) {
-      const isClass = type.isInterface === false;
-      const item: ModelType = {
-        definition: isClass ? 'class' : 'interface',
-        name: makeTypename(type),
-        key,
-        dependencys: [],
-        properties: [],
-      }
-      if (!type.isEnum) {
-        const dependsTypes = detectDependsTypes(type);
-        for (const dependType of Object.values(dependsTypes)) {
-          const dependModule = makeFilename(dependType);
-          item.dependencys?.push({
-            id: dependModule,
-            modules: dependType.name,
-          })
-        }
-        if (type.properties) {
-          const properties = type.properties!;
-          for (const propertyName in properties) {
-            const property = properties[propertyName];
-            const propertyType = property.typeRef;
-            const propertie: Properties = {
-              name: propertyName,
-              type: [makeTypename(propertyType)],
-              description: property.comments,
-              value: 'null',
-              required: !property.nullable,
-            }
-            if (property.nullable)
-              propertie.type?.push('null', 'undefined')
-
-            if (isClass) {
-              if (propertyType.isArray) propertie.value = '[]'
-              else if (property.nullable) propertie.value = 'null'
-              else if (propertyType.isBuildInType) propertie.value = getBuildInTypeValue(propertyType.name)
-              else if (propertyType.isEnum)
-                propertie.value = '0'
-            }
-            item.properties?.push(propertie)
-          }
-        }
-        if (type.baseType)
-          item.extends = makeTypename(type.baseType)
-      }
-
-      if (type.isEnum) {
-        item.definition = 'enum';
-        item.properties = type.enumValues?.map(e => ({ name: e.key, value: e.value }))
-      }
-
-      if (type.comments)
-        item.description = type.comments
-
-      models.push(item)
-    }
+    for (const type of types)
+      models.push(getModelByIDotnetType(type, key))
   }
 
   return models

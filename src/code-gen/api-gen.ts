@@ -6,9 +6,10 @@ import type { OpenAPI3, OpenAPI3Operation, OpenAPI3Parameter, Parameter } from '
 import type { ApiAction, ApiController, ApiOption, ApiProperties, ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults } from '../../types';
 import { defaultApisTransform } from '../presets';
 import { HttpStatusCodes } from './types';
-import type { DotNetTypes, IAipContent, IApiBody, IApiOperation, IApiParameter, IDotnetTypeRef } from './types';
+import type { DotNetTypes, IAipContent, IApiBody, IApiOperation, IApiParameter, IDotnetType, IDotnetTypeRef } from './types';
 import { getFileId, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
 import { buildType, buildTypeRef } from './type-builder';
+import { getModelByIDotnetType } from './model-gen';
 
 interface ApiNode {
   [key: string]: ApiNode | IApiOperation
@@ -94,7 +95,7 @@ function getResponseType(responseBody?: IApiBody) {
 }
 
 function getParameters(data: IApiParameter[] | undefined | null, type: Array<'query' | 'header' | 'path' | 'cookie'>): string | ApiProperties[] | undefined {
-  return data?.flatMap((e) => {
+  const res = data?.flatMap((e) => {
     if (!type.includes(e.in)) return []
     return {
       name: e.name,
@@ -104,8 +105,9 @@ function getParameters(data: IApiParameter[] | undefined | null, type: Array<'qu
       isPath: e.in === 'query',
     } as ApiProperties;
   });
+  if (res?.length) return res;
+  return undefined
 }
-
 function getRequestBody(requestBody?: IApiBody): string | undefined {
   if (!requestBody?.content) return undefined;
   const contentTypes = Object.keys(requestBody.content);
@@ -160,7 +162,21 @@ function getResultType(responseBody?: IApiBody) {
   return makeTypename(resultType);
 }
 
+function getRequestBodyByFormData(type?: IDotnetType) {
+  if (!type) return undefined;
+  const item = getModelByIDotnetType(type, 'FormData')
+  return item;
+}
+
 function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3): ApiAction {
+  const requestBody = getRequestBody(item.requestBody as IApiBody)
+  let requestBodyFormData;
+  if (requestBody === 'FormData' && item.requestBody?.content) {
+    const key = Object.keys(item.requestBody.content).find(key => key.includes('multipart/form-data'))
+    if (key)
+      requestBodyFormData = getRequestBodyByFormData((item.requestBody.content as any)[key]?.typeRef)
+  }
+
   const res = {
     url: item.path,
     method: item.method?.toLocaleUpperCase() as any,
@@ -170,7 +186,8 @@ function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3
     responseType: getResponseType(item.responseBody),
     parameters: getParameters(item?.parameters as IApiParameter[], ['path', 'query']),
     header: getParameters(item?.parameters as IApiParameter[], ['header']),
-    requestBody: getRequestBody(item.requestBody as IApiBody),
+    requestBody,
+    requestBodyFormData,
     returnType: getResultType(item.responseBody),
   } as ApiAction
   if (setting.template.api && setting.template.api.onBeforeActionWriteFile)
@@ -227,9 +244,9 @@ export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting
       });
     const methods: any = node;
     for (const operation of operations) {
-      const actionLower = action.toLowerCase();
+      const actionLower = action?.toLowerCase() || operation.method;
       const methodLower = operation.method.toLowerCase();
-      let fnName = camelCase(action, { pascalCase: true });
+      let fnName = camelCase(action || actionLower, { pascalCase: true });
       if (!(actionLower.startsWith(methodLower) || actionLower.endsWith(methodLower)))
         fnName += `_${camelCase(operation.method, { pascalCase: true })}`;
       if (!actionLower.endsWith('async')) fnName += 'Async';
@@ -280,6 +297,8 @@ export async function generateApisAsync(
       fileId: models.paths[e.key],
     };
   });
+
+  if (apis.dependencys?.length) apis.dependencys = undefined
 
   const paths: Record<string, string> = {}
 

@@ -170,6 +170,7 @@ export type ApiAction = {
   headers?: Record<string, any>;
   limit?: Record<string, any>;
   requestBody?: string | ApiProperties[];
+  requestBodyFormData?: string | ApiProperties[]; 
   parameters?: string | ApiProperties[];
   header?: ApiProperties[];
   returnType: string | ApiProperties[] | 'void' | 'Blob';
