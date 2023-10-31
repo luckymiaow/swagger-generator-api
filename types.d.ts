@@ -169,8 +169,8 @@ export type ApiAction = {
   responseType: ResponseType;
   headers?: Record<string, any>;
   limit?: Record<string, any>;
-  requestBody?: string | ApiProperties[];
-  requestBodyFormData?: string | ApiProperties[]; 
+  requestBody?: string | Properties[];
+  requestBodyFormData?: string | Properties[]; 
   parameters?: string | ApiProperties[];
   header?: ApiProperties[];
   returnType: string | ApiProperties[] | 'void' | 'Blob';

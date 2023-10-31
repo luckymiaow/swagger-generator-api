@@ -20,7 +20,9 @@ export default defineConfig({
 
         },
         api: {
-
+          transform: (apis) => {
+            throw new Error('1');
+          },
         },
       },
     },

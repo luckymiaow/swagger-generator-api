@@ -3,7 +3,7 @@ import { String } from 'typescript-string-operations';
 import camelCase from 'camelcase';
 import handlebars from 'handlebars';
 import type { OpenAPI3, OpenAPI3Operation, OpenAPI3Parameter, Parameter } from '../schema';
-import type { ApiAction, ApiController, ApiOption, ApiProperties, ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults } from '../../types';
+import type { ApiAction, ApiController, ApiOption, ApiProperties, ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults, Properties } from '../../types';
 import { defaultApisTransform } from '../presets';
 import { HttpStatusCodes } from './types';
 import type { DotNetTypes, IAipContent, IApiBody, IApiOperation, IApiParameter, IDotnetType, IDotnetTypeRef } from './types';
@@ -165,12 +165,12 @@ function getResultType(responseBody?: IApiBody) {
 function getRequestBodyByFormData(type?: IDotnetType) {
   if (!type) return undefined;
   const item = getModelByIDotnetType(type, 'FormData')
-  return item;
+  return item?.properties;
 }
 
 function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3): ApiAction {
   const requestBody = getRequestBody(item.requestBody as IApiBody)
-  let requestBodyFormData;
+  let requestBodyFormData: string | Properties[] | undefined;
   if (requestBody === 'FormData' && item.requestBody?.content) {
     const key = Object.keys(item.requestBody.content).find(key => key.includes('multipart/form-data'))
     if (key)
