@@ -1,5 +1,5 @@
 import type { ISettingsV3, ModelType } from '../../types';
-import type { DotNetTypes } from './types';
+import type { DotNetTypes, IDotnetType } from './types';
 export declare function generateModelsAsync(models: ModelType[], setting: ISettingsV3): {
     models: never[];
     paths: {};
@@ -9,4 +9,5 @@ export declare function generateModelsAsync(models: ModelType[], setting: ISetti
     paths: Record<string, string>;
     dtsPath: string;
 };
+export declare function getModelByIDotnetType(type: IDotnetType, key: string): ModelType;
 export declare function fetchModelsAsync(types: DotNetTypes): ModelType[];
