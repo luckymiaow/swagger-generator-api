@@ -298,7 +298,7 @@ export async function generateApisAsync(
     };
   });
 
-  if (apis.dependencys?.length) apis.dependencys = undefined
+  if (!apis.dependencys?.length) apis.dependencys = undefined
 
   const paths: Record<string, string> = {}
 
