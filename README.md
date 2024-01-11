@@ -3,6 +3,7 @@
 `yarn add swagger-generator-api -D`
 `yarn gen_api`
 
+###遇到https证书问题可以在配置文件中增加这行配置 `process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';` 临时跳过证书校验
 
 ##api.config.ts
 
