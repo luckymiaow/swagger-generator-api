@@ -25,7 +25,7 @@ export const defaultModelTransform = `
 import { {{this.modules}} } from './{{this.id}}';
 {{/each}}
 {{#if data.description}}/*{{data.description}}*/{{/if}}
-export {{data.definition}} {{data.name}} {{#if data.extends}}extends {{data.extends}}{{/if}} {{properties data.properties data.definition}}`;
+export {{data.definition}} {{data.name}} {{#if data.extends}} extends {{data.extends}}{{/if}} {{#if (eq data.definition  'type')}} = {{/if}} {{properties data.properties data.definition}}`;
 
 // 使用函数拼接示例
 export function defaultModelTransformFn(data: ModelType): string {
@@ -42,6 +42,7 @@ export function defaultModelTransformFn(data: ModelType): string {
   const code = `${importStatements}
   ${descriptionComment}export ${data.definition} ${data.name} ${data.extends ? `extends ${data.extends}` : ''
     } 
+    ${data.definition === 'type' ? '=' : ''}
   ${joinProperties(data.properties, data.definition)}
   `;
   return code;
@@ -53,7 +54,9 @@ export function defaultModelTransformFn(data: ModelType): string {
 // 示例使用handlebars模板替换
 
 export function getActionString() {
-  return `{{this.name}}({{#if this.parameters}}params: {{properties this.parameters false}}{{/if}}{{#if (and this.parameters this.requestBody)}}, {{/if}}{{#if this.requestBody}}data: {{ properties this.requestBody false}} {{/if}}{{#if (or this.parameters this.requestBody)}}, {{/if}}options?: AxiosRequestConfig): Promise<{{this.returnType}}> {
+  return `{{this.name}}({{#if this.parameters}}params: {{properties this.parameters false}}{{/if}}
+  {{#if (and this.parameters this.requestBody)}}, {{/if}}{{#if this.requestBody}}data: {{ properties this.requestBody false}} {{/if}}
+  {{#if (or this.parameters this.requestBody)}}, {{/if}}options?: AxiosRequestConfig): Promise<{{this.returnType}}> {
     return apiOptions.request({
       method: "{{this.method}}",
       url: \`{{replace  this.url '{' '$\{params.'  }}\`,

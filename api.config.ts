@@ -13,16 +13,14 @@ export default defineConfig({
   apiDocs: [
 
     {
-      url: 'http://127.0.0.1:4523/export/openapi?projectId=3365353&version=3.0',
+      url: 'http://192.168.10.250:8088/swagger/v1/swagger.json',
       basePath: '.generatedv2',
       template: {
         models: {
 
         },
         api: {
-          transform: (apis) => {
-            throw new Error('1');
-          },
+       
         },
       },
     },

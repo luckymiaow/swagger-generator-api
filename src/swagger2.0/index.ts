@@ -6,7 +6,7 @@
  */
 
 import camelCase from 'camelcase';
-import type { ApiAction, ApiController, ApiProperties, ApiType, HttpMethod, ModelType } from '../../types'
+import type { ApiAction, ApiController, ApiNamespace, ApiProperties, ApiType, HttpMethod, ModelType } from '../../types'
 import type { Definition, Definitions, Parameters, Paths, Propertie, Responses, Swagger2 } from './type'
 
 export async function parseV2(swDoc: Swagger2) {
@@ -25,36 +25,84 @@ function genDoc(swaggerDoc: Swagger2): ApiType {
 
   const apiController: Record<string, ApiController> = {}
 
+  const namespaces:Record<string, Omit<ApiNamespace,'controllers'> & {controllers:Record<string, ApiController>  } > = {}
+
   for (const path in swaggerDoc.paths) {
     const obj = swaggerDoc.paths[path];
 
-    const names = path.split('/').filter(Boolean)
+    const names = path.split('/').filter((v)=>v && !v.startsWith('{'))
     if (names.length === 1) {
       for (const key in obj) {
         const action = obj[key as HttpMethod];
         res.actions?.push(getAction(names[0], path, key, action))
       }
     }
-    else {
-      const controllerName = names[0]
-      if (!(controllerName in apiController)) {
-        apiController[controllerName] = {
-          name: upperFirst(controllerName),
+    else if(names.length==2){
+      const controller = names[0]
+      if (!(controller in apiController)) {
+        apiController[controller] = {
+          name: convertToUpperCamelCase(controller),
           description: (obj as any)?.[Object.keys(obj)?.[0]]?.tags?.[0],
           actions: [],
         }
       }
       for (const key in obj) {
         const action = obj[key as HttpMethod];
-        apiController[controllerName].actions.push(getAction(names[names.length - 1], path, key, action))
+        apiController[controller].actions.push(getAction(names[names.length-1], path, key, action))
       }
+    }
+    else {
+      const namespace = convertToUpperCamelCase(names[0]);
+      const controller = convertToUpperCamelCase(names[1])
+      if(!(namespace in namespaces)){
+        namespaces[namespace] = {
+          name: namespace,
+          controllers: {
+           
+          }
+        }
+      }
+      if(!(controller in namespaces[namespace].controllers)){
+        namespaces[namespace].controllers[controller]={
+          name: controller,
+          description: (obj as any)?.[Object.keys(obj)?.[0]]?.tags?.[0],
+          actions: [],
+          }
+      }
+      for (const key in obj) {
+        const action = obj[key as HttpMethod];
+        namespaces[namespace].controllers[controller].actions.push(getAction(names[names.length-1], path, key, action))
+      }
+
     }
   }
 
   res.controllers = Object.values(apiController)
+  res.namespaces = Object.values(namespaces).map(v=>({...v, controllers:Object.values(v.controllers) }))
 
   return res;
 }
+
+function convertToUpperCamelCase(str:string) {
+  // 去除字符串两端的空格
+  str = str.trim();
+
+  // 如果是横杠命名
+  if (str.includes('-')) {
+    // 将横杠去掉并将单词首字母大写
+    return str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+  }
+  // 如果是小驼峰命名
+  else if (str[0] === str[0].toLowerCase() && str.includes(str[0].toUpperCase())) {
+    // 将首字母大写
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  // 如果是大驼峰命名或其他格式
+  else {
+    return upperFirst(str);
+  }
+}
+
 
 function getAction(name: string, url: string, method: string, pathObj: Paths): ApiAction {
   const actionLower = name.toLowerCase();
@@ -82,22 +130,33 @@ function genModel(definitions: Definitions) {
   for (const key in definitions) {
     const item = definitions[key]
     const mode: ModelType = {
-      definition: 'type',
+      definition: item.type === 'object' ? 'class' : 'type',
       name: key,
       key,
       dependencys: [],
       description: item.description,
+      properties: [],
     }
 
-    const leadInto = new Set()
+    const leadInto = new Set<string>()
+    
+    const requiredFields = item.required instanceof Array ? item.required  : [];
 
     for (const attribute in item.properties) {
-      mode.properties?.push({
-        description: item.properties[attribute].description || attribute,
-        name: attribute,
-        type: [getType(item.properties[attribute])],
-        required: item.required,
+      const prop = item.properties[attribute];
+      const required = requiredFields.includes(attribute);
+      const type = getType(prop,leadInto) as any;
 
+      const types = [type];
+
+      if(!required)types.push('null');
+
+      mode.properties?.push({
+        description: prop.description || attribute,
+        name: attribute,
+        type: types,
+        required: required,
+        value: required ? getValueByType(type) : null,
       })
     }
 
@@ -105,25 +164,50 @@ function genModel(definitions: Definitions) {
       id: e as string,
       modules: e as string,
     }))
+    models.push(mode)
   }
 
   return models;
 }
 
-function getType(data: Propertie): string {
+function getValueByType(type: 'string' | 'number' | 'boolean' | 'undefined' | 'null' | 'symbol') {
+  switch (type) {
+    case 'string':
+      return '""' ;
+    case 'number':
+      return 0 ;
+    case 'boolean':
+      return false ;
+    case 'undefined':
+      return undefined;
+    case 'null':
+      return null ;
+    case 'symbol':
+      return Symbol() ;
+    default:
+      return "{}";
+  }
+}
+function getType(data: Propertie,leadInto?: Set<string>): string {
   if (data?.schema)
-    return getType(data?.schema)
+    return getType(data?.schema,leadInto)
 
   if (data?.type === 'integer')
     return 'number'
   if (data?.type === 'array') {
-    if (data?.items.$ref)
-      return `Array<${extractMethodNames(data.items.$ref)}>`
+    if (data?.items.$ref){
+      const typeName  = extractMethodNames(data.items.$ref)
+      leadInto?.add(typeName)
+      return `Array<${typeName}>`
+    }
     else if (data?.items.type)
-      return `Array<${getType(data.items)}>`
+      return `Array<${getType(data.items,leadInto)}>`
   }
-  if (data?.$ref)
-    return extractMethodNames(data.$ref)
+  if (data?.$ref){
+      const typeName  = extractMethodNames(data.$ref)
+      leadInto?.add(typeName)
+      return typeName;
+  }
   if (data?.type === 'file')
     return 'FormData'
   return data?.type || 'any'
@@ -139,9 +223,9 @@ function upperFirst(input: string): string {
 }
 
 function getParameters(parameters: Parameters[] | undefined, type: Array<'body' | 'query' | 'path'>) {
-  const body = parameters?.filter(e => type.includes(e.in)) || [];
+  const body = parameters?.filter(e => type.includes(e.in))  || []
 
-  return body.map<ApiProperties>((e) => {
+  const res = body.map<ApiProperties>((e) => {
     return {
       name: e.name,
       description: e.description,
@@ -150,6 +234,8 @@ function getParameters(parameters: Parameters[] | undefined, type: Array<'body' 
       isPath: e.in === 'path',
     }
   })
+
+  return res.length ? res : null;
 }
 
 function getResultType(responses: Responses) {
@@ -164,12 +250,22 @@ function getResultType(responses: Responses) {
 
 function getResponseType(pathObj: Paths) {
   let returnValueType = 'json'
-  if (pathObj.responses[200]?.schema) {
-    returnValueType = getType(pathObj.responses[200].schema)
-    returnValueType = returnValueType === 'any' ? 'json' : returnValueType
-  }
+  // if (pathObj.responses[200]?.schema) {
+  //   returnValueType = ''
+  // }
   return returnValueType
 }
+
+
+// function getResponseType(responseBody?: Paths) {
+//   if (responseBody && responseBody.content) {
+//     const contentTypes = Object.keys(responseBody.content);
+//     if (contentTypes.find(c => /\/octet-stream$/.test(c))) return 'blob';
+//     if (contentTypes.find(c => /\/json$/.test(c))) return 'json';
+//   }
+
+//   return 'json';
+// }
 
 function makeTypename(type?: Definition) {
   if (type)

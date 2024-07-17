@@ -59,7 +59,7 @@ export type Definitions = Record<string, Definition>
 interface Definition {
   title: string;
   type: string
-  required:boolean
+  required: boolean | string[]
   description: string
   properties: Properties
 }
