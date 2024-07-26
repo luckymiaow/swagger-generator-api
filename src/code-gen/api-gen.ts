@@ -254,7 +254,7 @@ export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting
     }
   }
   const res: ApiType = { controllers: [], namespaces: [], actions: [] };
-  const tagObj = doc.tags.reduce((a, b) => ((a[b.name] = b.description), a), {} as any);
+  const tagObj = doc.tags?.reduce((a, b) => ((a[b.name] = b.description), a), {} as any);
   const groupApi = Object.entries(apiRoot);
   if (groupApi.length === 1) {
     res.controllers = fetchControllers(groupApi[0][1] as any, tagObj, setting);
