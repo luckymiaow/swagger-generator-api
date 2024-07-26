@@ -151,7 +151,7 @@ export function buildType(
       let genericArguments: IDotnetType[] | undefined;
       let isBuildInType = false;
 
-      if (schema.type == 'object') {
+      if (schema.type === 'object') {
         if (schema.properties) {
           properties = {};
           const propertySchemas = schema.properties;
@@ -171,7 +171,7 @@ export function buildType(
             };
           }
         }
-        if (schema.allOf && schema.allOf.length == 1)
+        if (schema.allOf && schema.allOf.length === 1)
           baseType = buildType(schema.allOf[0], types, schemas);
 
         if (schema.isGenericType) {
@@ -223,7 +223,7 @@ export function buildType(
           case 'boolean':
             break;
           case 'string':
-            if (schema.format == 'date-time')
+            if (schema.format === 'date-time')
               name = 'Date';
 
             break;
@@ -246,7 +246,7 @@ export function buildType(
         isBuildInType = !isEnum;
       }
       else if (schema.allOf) {
-        if (schema.allOf.length == 1)
+        if (schema.allOf.length === 1)
           return buildType(schema.allOf[0], types, schemas);
 
         throw 'not supported.';
@@ -287,9 +287,16 @@ export function buildType(
     }
     else if ('allOf' in obj) {
       const allOf = obj.allOf;
-      if (allOf && allOf.length == 1)
+      if (allOf && allOf.length === 1)
         return buildType(allOf[0], types, schemas);
 
+      if (allOf && allOf.length > 1) {
+        const obj = {
+          allOf: allOf.filter(v => '$ref' in v),
+          ...allOf.find(v => 'type' in v || 'properties' in v),
+        } as OpenAPI3SchemaObject
+        if (obj.type || obj.properties) return buildType(obj, types, schemas);
+      }
       throw 'not support';
     }
     else if ('anyOf' in obj) {

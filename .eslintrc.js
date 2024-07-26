@@ -24,6 +24,6 @@ module.exports = {
     'antfu/if-newline': 0,
     'no-sequences': 0,
   },
-  ignorePatterns: ['node_modules/', 'lib/'],
+  ignorePatterns: ['node_modules/', 'lib/', '*.json'],
 
 };

@@ -6,6 +6,8 @@
  */
 import { defineConfig } from 'swagger-generator-api';
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 const baseUrl = 'https://localhost:7299';
 
 export default defineConfig({
@@ -13,14 +15,14 @@ export default defineConfig({
   apiDocs: [
 
     {
-      url: 'http://192.168.10.250:8088/swagger/v1/swagger.json',
+      url: 'api.json',
       basePath: '.generatedv2',
       template: {
         models: {
 
         },
         api: {
-       
+
         },
       },
     },
