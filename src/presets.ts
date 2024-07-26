@@ -166,7 +166,7 @@ export class DefaultApisTransform {
     );
     strs.push(`return ${this.getApiRequestName(action)}({\n`);
     strs.push(`method: "${action.method}",\n`);
-    strs.push(`url: "\`${action.url.replace('{', '${params.')}\`",\n`);
+    strs.push(`url: \`${action.url.replace('{', '${params.')}\`,\n`);
     if (action.requestBody) strs.push('data,\n');
     if (action.parameters) strs.push('params,\n');
     strs.push('...(options || {}),\n');
