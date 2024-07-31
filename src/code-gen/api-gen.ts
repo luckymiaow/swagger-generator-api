@@ -3,7 +3,7 @@ import { String } from 'typescript-string-operations';
 import camelCase from 'camelcase';
 import handlebars from 'handlebars';
 import type { OpenAPI3, OpenAPI3Operation, OpenAPI3Parameter, Parameter } from '../schema';
-import type { ApiAction, ApiController, ApiOption, ApiProperties, ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults, Properties } from '../../types';
+import type { ApiAction, ApiController, ApiOption, ApiProperties, ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults, ModelType, Properties } from '../../types';
 import { defaultApisTransform } from '../presets';
 import { HttpStatusCodes } from './types';
 import type { DotNetTypes, IAipContent, IApiBody, IApiOperation, IApiParameter, IDotnetType, IDotnetTypeRef } from './types';
@@ -168,7 +168,7 @@ function getRequestBodyByFormData(type?: IDotnetType) {
   return item?.properties;
 }
 
-function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3): ApiAction {
+function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3, model: { models: ModelType[]; modelDir: Record<string, ModelType> }): ApiAction {
   const requestBody = getRequestBody(item.requestBody as IApiBody)
   let requestBodyFormData: string | Properties[] | undefined;
   if (requestBody === 'FormData' && item.requestBody?.content) {
@@ -190,12 +190,13 @@ function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3
     requestBodyFormData,
     returnType: getResultType(item.responseBody),
   } as ApiAction
+
   if (setting.template.api && setting.template.api.onBeforeActionWriteFile)
-    return setting.template.api.onBeforeActionWriteFile(res)
+    return setting.template.api.onBeforeActionWriteFile(res, model.models, model.modelDir)
   return res
 }
 
-function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string, string>, setting: ISettingsV3): ApiController[] {
+function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string, string>, setting: ISettingsV3, model: { models: ModelType[]; modelDir: Record<string, ModelType> }): ApiController[] {
   const entroes = Object.entries(nodes);
   const controllers: ApiController[] = [];
 
@@ -205,13 +206,13 @@ function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string,
     controllers.push({
       name: key,
       description: tagObj?.[key],
-      actions: actions?.map(([actionName, item]) => getAction(actionName, item as IApiOperation, setting)),
+      actions: actions?.map(([actionName, item]) => getAction(actionName, item as IApiOperation, setting, model)),
     });
   }
   return controllers;
 }
 
-export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting: ISettingsV3) {
+export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting: ISettingsV3, model: { models: ModelType[]; modelDir: Record<string, ModelType> }) {
   const apiRoot: ApiNode = {};
 
   for (const apiPath in doc.paths) {
@@ -257,21 +258,21 @@ export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting
   const tagObj = doc.tags?.reduce((a, b) => ((a[b.name] = b.description), a), {} as any);
   const groupApi = Object.entries(apiRoot);
   if (groupApi.length === 1) {
-    res.controllers = fetchControllers(groupApi[0][1] as any, tagObj, setting);
+    res.controllers = fetchControllers(groupApi[0][1] as any, tagObj, setting, model);
     return res;
   }
   for (const [key, apis] of groupApi) {
     const isClass = Object.entries(apis)
     if (typeof isClass[0][1] === 'string') {
-      res.actions?.push(getAction(key, apis as IApiOperation, setting));
+      res.actions?.push(getAction(key, apis as IApiOperation, setting, model));
     }
     else if (apis && ('path' in isClass[0][1] && 'method' in isClass[0][1])) {
-      res.controllers?.push(...fetchControllers({ [key]: apis } as any, tagObj, setting));
+      res.controllers?.push(...fetchControllers({ [key]: apis } as any, tagObj, setting, model));
     }
     else {
       res.namespaces?.push({
         name: key,
-        controllers: fetchControllers(apis as any, tagObj, setting),
+        controllers: fetchControllers(apis as any, tagObj, setting, model),
         description: tagObj?.[key],
       });
     }

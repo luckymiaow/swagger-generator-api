@@ -15,8 +15,10 @@ export function generateModelsAsync(models: ModelType[], setting: ISettingsV3) {
 
   if (!modelsOption.transform) modelsOption.transform = defaultModelTransform
 
+  const modelDir = models.reduce((a, b) => ((a[b.name] = b), a), {} as Record<string, ModelType>)
+
   for (let model of models) {
-    if (modelsOption.onBeforeWriteFile) model = modelsOption.onBeforeWriteFile(model)
+    if (modelsOption.onBeforeWriteFile) model = modelsOption.onBeforeWriteFile(model, models, modelDir)
 
     let code = defaultModelTransform
 

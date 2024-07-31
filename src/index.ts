@@ -29,8 +29,10 @@ async function loadApiV3Doc(doc: OpenAPI3, setting: ISettingsV3): Promise<{
   models: ModelType[]
 }> {
   const types = buildTypes(doc.components?.schemas as OpenAPI3Schemas);
-  const apis = await fetchV3ApisAsync(doc, types, setting)
   const models = await fetchV3ModelsAsync(types)
+  const modelDir = models.reduce((a, b) => ((a[b.name] = b), a), {} as Record<string, ModelType>)
+
+  const apis = await fetchV3ApisAsync(doc, types, setting, { models, modelDir })
   return {
     apis,
     models,
@@ -44,13 +46,16 @@ async function loadApiV2Doc(doc: any, setting: ISettingsV3): Promise<{
   const res = await parseV2(doc);
   if (setting.template.api && setting.template.api.onBeforeActionWriteFile) {
     const onBeforeActionWriteFile = setting.template.api.onBeforeActionWriteFile
-    res.apis.actions = res.apis.actions?.map(e => onBeforeActionWriteFile(e))
+
+    const modelDir = res.models.reduce((a, b) => ((a[b.name] = b), a), {} as Record<string, ModelType>)
+
+    res.apis.actions = res.apis.actions?.map(e => onBeforeActionWriteFile(e, res.models, modelDir))
     res.apis.controllers?.forEach((item) => {
-      item.actions = item.actions?.map(e => onBeforeActionWriteFile(e))
+      item.actions = item.actions?.map(e => onBeforeActionWriteFile(e, res.models, modelDir))
     })
     res.apis.namespaces?.forEach((v) => {
       v.controllers.forEach((item) => {
-        item.actions = item.actions?.map(e => onBeforeActionWriteFile(e))
+        item.actions = item.actions?.map(e => onBeforeActionWriteFile(e, res.models, modelDir))
       })
     })
   }

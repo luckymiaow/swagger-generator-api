@@ -46,7 +46,7 @@ export type ModelOption = {
    * @param model 
    * @returns 
    */
-  onBeforeWriteFile?: (model: ModelType) => ModelType
+  onBeforeWriteFile?: (model: ModelType, models: ModelType[], modelDir: Record<string, ModelType>) => ModelType
 
   /**
    * 是否在目录生成汇总导出文件，true将生成index.ts的文件 string 将在output目录生成该string的文件
@@ -104,7 +104,7 @@ export type ApiOptionBase = {
   /**
    * 在写入action前，可对action做一些操作
    */
-  onBeforeActionWriteFile?: (action: ApiAction) => ApiAction
+  onBeforeActionWriteFile?: (action: ApiAction, models: ModelType[], modelDir: Record<string, ModelType>) => ApiAction
 
 }
 
@@ -170,7 +170,7 @@ export type ApiAction = {
   headers?: Record<string, any>;
   limit?: Record<string, any>;
   requestBody?: string | Properties[];
-  requestBodyFormData?: string | Properties[]; 
+  requestBodyFormData?: string | Properties[];
   parameters?: string | ApiProperties[];
   header?: ApiProperties[];
   returnType: string | ApiProperties[] | 'void' | 'Blob';
