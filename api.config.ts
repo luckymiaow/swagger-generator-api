@@ -15,7 +15,7 @@ export default defineConfig({
   apiDocs: [
 
     {
-      url: 'api.json',
+      url: 'swagger.json',
       basePath: '.generatedv2',
       template: {
         models: {
