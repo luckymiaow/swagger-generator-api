@@ -16,7 +16,8 @@
     "generator"
   ],
   "bin": {
-    "gen_api": "./bin/index.js"
+    "gen_api": "./bin/index.js",
+    "gen-api": "./bin/index.js"
   },
   "files": [
     "types.d.ts",

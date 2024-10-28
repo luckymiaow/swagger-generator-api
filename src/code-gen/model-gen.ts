@@ -2,7 +2,7 @@ import handlebars from 'handlebars';
 import type { ISettingsV3, ModelOption, ModelType, Properties } from '../../types';
 import { defaultModelTransform } from '../presets';
 import type { DotNetTypes, IDotnetType } from './types';
-import { detectDependsTypes, getModelsFileId, isModelType, makeFilename, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
+import { detectDependsTypes, getModelsFileId, isModelType, makeFilename, makeModelName, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
 
 export function generateModelsAsync(models: ModelType[], setting: ISettingsV3) {
   const modelsPath: Record<string, string> = {};
@@ -45,7 +45,7 @@ export function getModelByIDotnetType(type: IDotnetType, key: string): ModelType
   const isClass = type.isInterface === false;
   const item: ModelType = {
     definition: isClass ? 'class' : 'interface',
-    name: makeTypename(type),
+    name: makeModelName(type),
     key,
     dependencys: [],
     properties: [],

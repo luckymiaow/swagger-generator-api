@@ -4,6 +4,7 @@ export declare function comment(value?: string): string;
 export declare function mergeLines(value?: string): string;
 export declare function makeFilename(type: IDotnetType): string;
 export declare function makeTypename(type?: IDotnetType): string;
+export declare function makeModelName(type: IDotnetType): string;
 export declare function detectDependsTypes(type: IDotnetType): DotNetTypes;
 export declare function isModelType(type: IDotnetType): boolean | undefined;
 export declare function cleanAsync(outputPath: string): Promise<void>;

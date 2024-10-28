@@ -43,6 +43,22 @@ export function makeTypename(type?: IDotnetType) {
   return 'void';
 }
 
+export function makeModelName(type: IDotnetType) {
+  const sb = new StringBuilder();
+  if (type.isArray) {
+    sb.Append(makeTypename(type.elementType));
+    sb.Append('[]');
+  }
+  else {
+    sb.Append(type.name);
+    if (type.isGenericType) {
+      const genArgs = type.genericArguments!.map(arg => makeTypename(arg)).join(',');
+      sb.Append(`<${genArgs}>`);
+    }
+  }
+  return sb.ToString();
+}
+
 export function detectDependsTypes(type: IDotnetType): DotNetTypes {
   const depends: DotNetTypes = {};
   function append(target: IDotnetType) {
