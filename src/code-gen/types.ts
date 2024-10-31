@@ -34,6 +34,7 @@ export interface IDotnetType {
   readonly genericArguments?: IDotnetType[]
   readonly properties?: { [key: string]: IPropertyInfo }
   readonly comments?: string
+
 }
 
 export interface IDotnetTypeRef {
@@ -44,6 +45,8 @@ export interface IDotnetTypeRef {
 
 export interface IPropertyInfo extends IDotnetTypeRef {
   readonly propertyName: string
+  readonly mate?: any // 原始数据
+
 }
 
 export interface DotNetTypes { [key: string]: IDotnetType }

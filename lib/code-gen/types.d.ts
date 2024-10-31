@@ -39,6 +39,7 @@ export interface IDotnetTypeRef {
 }
 export interface IPropertyInfo extends IDotnetTypeRef {
     readonly propertyName: string;
+    readonly mate?: any;
 }
 export interface DotNetTypes {
     [key: string]: IDotnetType;

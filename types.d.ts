@@ -127,6 +127,7 @@ export type Properties = {
   value?: any; // 属性值
   description?: string; // 属性描述
   required?: boolean;
+  meta?: any //原类型
 };
 
 export type Dependency = {

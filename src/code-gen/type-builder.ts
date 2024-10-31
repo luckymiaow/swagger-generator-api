@@ -175,6 +175,7 @@ export function buildType(
                 typeRef,
                 nullable: propertyNullable,
                 comments: propertyDef.description,
+                mate: propertyDef,
               };
             }
           }
@@ -219,7 +220,7 @@ export function buildType(
           switch (schema.type) {
             case 'array':
               isArray = true;
-              elementType = buildType(schema.items!, types, schemas,);
+              elementType = buildType(schema.items!, types, schemas);
               name = `${elementType.name}[]`;
               break;
             case 'integer':

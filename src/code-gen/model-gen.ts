@@ -70,6 +70,7 @@ export function getModelByIDotnetType(type: IDotnetType, key: string): ModelType
           description: property.comments,
           value: 'null',
           required: !property.nullable,
+          meta: property.mate,
         }
         if (property.nullable)
           propertie.type?.push('null', 'undefined')
