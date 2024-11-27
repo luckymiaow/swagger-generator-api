@@ -169,6 +169,7 @@ export class DefaultApisTransform {
     strs.push(`url: \`${action.url.replace('{', '${params.')}\`,\n`);
     if (action.requestBody) strs.push('data,\n');
     if (action.parameters) strs.push('params,\n');
+    if (action.responseType) strs.push(`responseType:'${action.responseType}',\n`);
     strs.push('...(options || {}),\n');
     strs.push('});\n');
     strs.push('}\n');
