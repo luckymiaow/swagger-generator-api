@@ -1,6 +1,6 @@
 import type { ApiAction, ApiController, ApiNamespace, ApiType, Dependency, ModelType, Properties, TransformReturn } from '../types';
 export declare function joinProperties(data?: Properties[] | string, definition?: ModelType['definition'], isValue?: boolean): string;
-export declare const defaultModelTransform = "\n{{#each data.dependencys}}\nimport { {{this.modules}} } from './{{this.id}}';\n{{/each}}\n{{#if data.description}}/*{{data.description}}*/{{/if}}\nexport {{data.definition}} {{data.name}} {{#if data.extends}} extends {{data.extends}}{{/if}} {{#if (eq data.definition  'type')}} = {{/if}} {{properties data.properties data.definition}}";
+export declare const defaultModelTransform = "\n{{#each data.dependencys}}\nimport { {{this.modules}} } from './{{this.id}}';\n{{/each}}\n{{#if data.description}}/**{{data.description}}*/{{/if}}\nexport {{data.definition}} {{data.name}} {{#if data.extends}} extends {{data.extends}}{{/if}} {{#if (eq data.definition  'type')}} = {{/if}} {{properties data.properties data.definition}}";
 export declare function defaultModelTransformFn(data: ModelType): string;
 export declare function getActionString(): string;
 export declare function getClassString(): string;

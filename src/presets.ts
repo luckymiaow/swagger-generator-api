@@ -8,7 +8,7 @@ export function joinProperties(data?: Properties[] | string, definition: ModelTy
   if (typeof data === 'string') return data;
 
   const res = data.map((item) => {
-    let s = `${item.description ? `/*${item.description}*/\n` : ''}`
+    let s = `${item.description ? `/**${item.description}*/\n` : ''}`
     s += item.name
     if (item.type) s += `${item.required ? '' : '?'}: ${item.type?.join('|')}`
     if (['class', 'enum'].includes(definition) && isValue) s += ` = ${item.value}`
@@ -24,7 +24,7 @@ export const defaultModelTransform = `
 {{#each data.dependencys}}
 import { {{this.modules}} } from './{{this.id}}';
 {{/each}}
-{{#if data.description}}/*{{data.description}}*/{{/if}}
+{{#if data.description}}/**{{data.description}}*/{{/if}}
 export {{data.definition}} {{data.name}} {{#if data.extends}} extends {{data.extends}}{{/if}} {{#if (eq data.definition  'type')}} = {{/if}} {{properties data.properties data.definition}}`;
 
 // 使用函数拼接示例
@@ -36,7 +36,7 @@ export function defaultModelTransformFn(data: ModelType): string {
       })
       .join('\n') || '';
   const descriptionComment = data.description
-    ? `/*${data.description}*/\n`
+    ? `/**${data.description}*/\n`
     : '';
 
   const code = `${importStatements}
