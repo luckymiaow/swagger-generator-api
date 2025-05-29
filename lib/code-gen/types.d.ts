@@ -1,3 +1,4 @@
+import type { OpenAPI3Reference, OpenAPI3SchemaObject } from '../schema';
 import type { ILimitedResource } from '../schema/limit';
 export * from '../schema/limit';
 export interface ITypeName {
@@ -117,6 +118,7 @@ export interface IApiParameter {
     required?: boolean;
     in: 'query' | 'header' | 'path' | 'cookie';
     type: IDotnetType;
+    schema: OpenAPI3SchemaObject | OpenAPI3Reference;
 }
 export interface IAipContent {
     [contentType: string]: IDotnetTypeRef;

@@ -1,6 +1,6 @@
 {
   "name": "swagger-generator-api",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "description": "适用于openApi3的接口文档生成工具",
   "main": "./lib/index.js",
   "types": "types.d.ts",

@@ -26,6 +26,7 @@ function transformParameters(parameters: Parameter[], definedTypes: DotNetTypes)
         in: param.in,
         required: param.required,
         type,
+        schema: param.schema,
       };
     }
     else {
@@ -103,6 +104,7 @@ function getParameters(data: IApiParameter[] | undefined | null, type: Array<'qu
       required: e.required === true,
       type: [makeTypename(e.type)],
       isPath: e.in === 'query',
+      meta: e.schema,
     } as ApiProperties;
   });
   if (res?.length) return res;
