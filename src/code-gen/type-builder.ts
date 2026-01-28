@@ -334,13 +334,17 @@ function findOrBuildType(
     return types[typeRef];
 
   const tyepName = parseTypeName(typeRef);
+  const { genericArguments, ...rest } = tyepName;
+  const placeholder = { ...rest, isBuildInType: false } as IDotnetType;
+  types[typeRef] = placeholder;
+
   const builtType = buildType(obj, types, schemas);
 
   // if (tyepName.fullName != builtType.fullName) {
   //   console.log('not eq', tyepName.fullName, builtType.fullName);
   // }
 
-  return Object.assign(builtType, {
+  return Object.assign(placeholder, builtType, {
     name: tyepName.name,
     fullName: tyepName.fullName,
     namespace: tyepName.namespace,

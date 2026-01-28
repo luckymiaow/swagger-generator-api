@@ -1,12 +1,13 @@
-import type { ApiType, ModelType } from 'swagger-generator-api'
-import { defineConfig } from 'swagger-generator-api'
-import { DefaultApisTransform, defaultModelTransformFn, joinProperties } from 'swagger-generator-api/lib/presets'
+import type { ApiType, ModelType } from './'
+import { defineConfig } from './src/index'
+import { DefaultApisTransform, defaultModelTransformFn, joinProperties } from './src/presets'
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 export default defineConfig({
   version: 'v3',
   apiDocs: [
     {
-      url: `http://localhost:15179/swagger/v1/swagger.json`,
+      url: `https://localhost:7227/swagger/v1/swagger.json`,
       basePath: '.generated',
       template: {
         models: {
@@ -165,15 +166,17 @@ export default defineConfig({
 
               return strs.join('');;
             }
-            const t = {
-              ...data,
-              controllers: data.namespaces?.flatMap(v => v.controllers),
-              namespaces: undefined
-            } as ApiType
+            // const t = {
+            //   ...data,
+            //   controllers: data.namespaces?.flatMap(v => v.controllers),
+            //   namespaces: undefined
+            // } as ApiType
+
+            const code = generated.generated(data) || '';
 
             return {
               output: fileId,
-              code: generated.generated(t),
+              code,
             }
           },
 
