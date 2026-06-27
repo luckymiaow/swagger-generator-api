@@ -198,17 +198,25 @@ function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3
   return res
 }
 
+function flattenOperations(node: ApiNode, prefix = ''): Array<[string, IApiOperation]> {
+  const result: Array<[string, IApiOperation]> = [];
+  for (const [k, v] of Object.entries(node)) {
+    const name = prefix ? `${prefix}_${k}` : k;
+    if (isApiOperation(v)) result.push([name, v]);
+    else if (v && typeof v === 'object') result.push(...flattenOperations(v as ApiNode, name));
+  }
+  return result;
+}
+
 function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string, string>, setting: ISettingsV3, model: { models: ModelType[]; modelDir: Record<string, ModelType> }): ApiController[] {
-  const entroes = Object.entries(nodes);
   const controllers: ApiController[] = [];
 
-  for (const [key, value] of entroes) {
-    const actions = Object.entries(value);
-
+  for (const [key, value] of Object.entries(nodes)) {
+    const ops = flattenOperations(value as ApiNode);
     controllers.push({
       name: key,
       description: tagObj?.[key],
-      actions: actions?.map(([actionName, item]) => getAction(actionName, item as IApiOperation, setting, model)),
+      actions: ops.map(([actionName, item]) => getAction(actionName, item, setting, model)),
     });
   }
   return controllers;
@@ -256,19 +264,41 @@ export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting
       methods[fnName] = operation;
     }
   }
+  const tagObj: Record<string, string> = doc.tags?.reduce((a, b) => ((a[b.name] = b.description), a), {} as any) ?? {};
+
+  return groupApis(apiRoot, tagObj, setting, model);
+}
+
+function isApiOperation(value: unknown): value is IApiOperation {
+  return !!value && typeof value === 'object' && 'path' in value && 'method' in value;
+}
+
+function isApiGroup(value: unknown): value is Record<string, IApiOperation> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const entries = Object.values(value);
+  return entries.length > 0 && entries.every(isApiOperation);
+}
+
+function groupApis(
+  apiRoot: ApiNode,
+  tagObj: Record<string, string>,
+  setting: ISettingsV3,
+  model: { models: ModelType[]; modelDir: Record<string, ModelType> },
+): ApiType {
   const res: ApiType = { controllers: [], namespaces: [], actions: [] };
-  const tagObj = doc.tags?.reduce((a, b) => ((a[b.name] = b.description), a), {} as any);
   const groupApi = Object.entries(apiRoot);
   if (groupApi.length === 1) {
-    res.controllers = fetchControllers(groupApi[0][1] as any, tagObj, setting, model);
+    const [key, value] = groupApi[0];
+    if (isApiOperation(value)) res.actions?.push(getAction(key, value, setting, model));
+    else res.controllers = fetchControllers(groupApi[0][1] as any, tagObj, setting, model);
     return res;
   }
+
   for (const [key, apis] of groupApi) {
-    const isClass = Object.entries(apis)
-    if (typeof isClass[0][1] === 'string') {
-      res.actions?.push(getAction(key, apis as IApiOperation, setting, model));
+    if (isApiOperation(apis)) {
+      res.actions?.push(getAction(key, apis, setting, model));
     }
-    else if (apis && ('path' in isClass[0][1] && 'method' in isClass[0][1])) {
+    else if (isApiGroup(apis)) {
       res.controllers?.push(...fetchControllers({ [key]: apis } as any, tagObj, setting, model));
     }
     else {

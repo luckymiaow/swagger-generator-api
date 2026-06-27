@@ -57,8 +57,12 @@ function parseGenericArgumentTypeNames(genericArgsPart: string): ITypeName[] {
   return results;
 }
 
+function sanitizeIdentifier(name: string): string {
+  return name.replace(/`/g, '_').replace(/\[\]/g, 'Array');
+}
+
 function parseTypeName(typeRef: string): ITypeName {
-  const fullName = typeRef;
+  const fullName = sanitizeIdentifier(typeRef);
   const isGenericType = fullName.endsWith('>');
   let genericArguments: ITypeName[] | undefined;
 
