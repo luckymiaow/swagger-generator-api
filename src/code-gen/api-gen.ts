@@ -226,22 +226,25 @@ export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting
   const apiRoot: ApiNode = {};
 
   for (const apiPath in doc.paths) {
+    // 路径分段:中间的 {param} 转成 ByXxx 保留进嵌套路径;末尾的 {param} 丢弃(它是 action 的参数,不作为嵌套层级)
     const urlParts = apiPath
       .split(/[/\\]/)
-      .filter(s => !String.IsNullOrWhiteSpace(s) && /\{[\w\d_]+\}/gi.test(s) === false) // 忽略类似{id}形式的路由参数
-      .map(s =>
-        camelCase(
-          s
-            .replace(/\{([\w\d_]+)\}/i, (var1, var2) => `By${camelCase(var2, { pascalCase: true })}`)
-            .replace(/\{([\w\d_]+)\}/gi, (var1, var2) => `${camelCase(var2, { pascalCase: true })}`),
-          { pascalCase: true },
-        ),
-      );
+      .filter(s => !String.IsNullOrWhiteSpace(s))
+      .map((s) => {
+        const m = s.match(/^\{([\w\d_]+)\}$/i);
+        if (m)
+          return { isParam: true, name: `By${camelCase(m[1], { pascalCase: true })}` };
+        return { isParam: false, name: camelCase(s, { pascalCase: true }) };
+      });
+
+    // action 取最后一个非 {param} 段;末尾连续的 {param} 不进入嵌套路径
+    let actionIdx = urlParts.length - 1;
+    while (actionIdx >= 0 && urlParts[actionIdx].isParam) actionIdx--;
+    const action = urlParts[actionIdx]?.name;
+    const nestParts = actionIdx >= 0 ? urlParts.slice(0, actionIdx).map(p => p.name) : [];
 
     let node = apiRoot;
-    const action = urlParts[urlParts.length - 1];
-    urlParts.splice(urlParts.length - 1);
-    for (const part of urlParts) {
+    for (const part of nestParts) {
       if (!(part in node)) node[part] = {};
       node = node[part] as ApiNode;
     }
