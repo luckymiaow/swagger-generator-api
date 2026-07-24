@@ -7,7 +7,7 @@ export default defineConfig({
   version: 'v3',
   apiDocs: [
     {
-      url: `https://localhost:7227/swagger/v1/swagger.json`,
+      url: `http://192.168.12.121/swagger/v1/swagger.json`,
       basePath: '.generated',
       template: {
         models: {
@@ -146,7 +146,8 @@ export default defineConfig({
 
               strs.push(`return ${generated.getApiRequestName(action)}({\n`);
               strs.push(`method: "${action.method}",\n`);
-              strs.push(`url: \`${action.url.replace('{', '${params.')}\`,\n`);
+              const url = action.url.replace(/\{(\w+)\}/g, '${params.$1}');
+              strs.push(`url: \`${url}\`,\n`);
 
               if (action.requestBody) {
                 if (isNewFormData) {
