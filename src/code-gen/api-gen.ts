@@ -212,6 +212,16 @@ function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string,
   const controllers: ApiController[] = [];
 
   for (const [key, value] of Object.entries(nodes)) {
+    // 值本身就是一个 operation(如列表/详情接口因 fnName 带 ById_GetAsync 后缀直接挂在分组下),
+    // 不能当作子分组去 flatten(否则会把 operation 自身的字段当树遍历,导致 actions 为空)
+    if (isApiOperation(value)) {
+      controllers.push({
+        name: key,
+        description: tagObj?.[key],
+        actions: [getAction(key, value, setting, model)],
+      });
+      continue;
+    }
     const ops = flattenOperations(value as ApiNode);
     controllers.push({
       name: key,
