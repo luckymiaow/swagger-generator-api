@@ -236,8 +236,16 @@ function fetchApisByController(doc: OpenAPI3, definedTypes: DotNetTypes, setting
         controllerMap.set(controllerName, entry);
       }
 
-      // 方法名按 URL 段 + HTTP 方法生成(旧命名规则,如 /api/CurrentUser/Me GET -> Me_GetAsync)
+      // 方法名规则:URL 段与 operationId 后半段一致时保留 URL 段+方法命名(如 Me -> Me_GetAsync),
+      // 不一致时用 operationId 命名(如 Topics vs GetTopics -> GetTopicsAsync)
       let actionName = getUrlActionName(apiPath, method);
+      if (opId) {
+        const dashIdx = opId.indexOf('-');
+        const opAction = camelCase(dashIdx >= 0 ? opId.slice(dashIdx + 1) : opId, { pascalCase: true });
+        const urlAction = getUrlActionSegment(apiPath);
+        if (!urlAction || opAction !== urlAction)
+          actionName = opAction + (/async$/i.test(opAction) ? '' : 'Async');
+      }
 
       // 类内方法名去重:冲突时追加 URL 最后一个非参数段区分
       if (entry.used.has(actionName)) {
@@ -305,6 +313,16 @@ function getControllerName(apiPath: string): string {
   if (parts[0]?.toLowerCase() === 'api') idx = 1;
   const seg = parts[idx] || parts[0] || 'default';
   return camelCase(seg, { pascalCase: true });
+}
+
+// 取 URL 最后一个非参数段作为 action 段(如 /api/topics/{id} -> Topics,/api/CurrentUser/Me -> Me)
+function getUrlActionSegment(apiPath: string): string | undefined {
+  const parts = apiPath.split('/').filter(Boolean);
+  for (let i = parts.length - 1; i >= 0; i--) {
+    if (!/^\{[\w\d_]+\}$/i.test(parts[i]))
+      return camelCase(parts[i], { pascalCase: true });
+  }
+  return undefined;
 }
 
 // 按 URL 段 + HTTP 方法生成方法名(旧命名规则,如 /api/CurrentUser/Me GET -> Me_GetAsync),

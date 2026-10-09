@@ -78,9 +78,11 @@ export default defineConfig({
 
 ## 接口分组规则
 
-生成时接口按 **URL 根路径** 分组为命名空间（`/api/*` → `namespace Api`、`/connect/*` → `namespace Connect`），命名空间内再按 **URL 的 controller 段** 分组为类（如 `/api/topics*` → `Topics` 类、`/api/topic-analyses*` → `TopicAnalyses` 类），每个类内的方法名按 **URL 段 + HTTP 方法** 生成（如 `GET /api/CurrentUser/Me` → `Me_GetAsync`、`GET /api/topics/{id}` → `TopicsById_GetAsync`），末尾的 `{参数}` 段转成 `ByXxx` 后缀。
+生成时接口按 **URL 根路径** 分组为命名空间（`/api/*` → `namespace Api`、`/connect/*` → `namespace Connect`），命名空间内再按 **URL 的 controller 段** 分组为类（如 `/api/topics*` → `Topics` 类、`/api/topic-analyses*` → `TopicAnalyses` 类）。
 
-调用方式形如 `Api.Topics.Topics_GetAsync(...)`。
+方法名规则：**URL 最后一段与 operationId 后半段一致时保留「URL 段 + HTTP 方法」命名**（如 `GET /api/CurrentUser/Me` 的 `Me` == operationId 后半段 `Me` → `Me_GetAsync`）；**不一致时用 operationId 命名**（如 `/api/topics` 的 URL 段 `Topics` ≠ operationId 后半段 `GetTopics` → `GetTopicsAsync`）。末尾的 `{参数}` 段转成 `ByXxx` 后缀。
+
+调用方式形如 `Api.Topics.GetTopicsAsync(...)`、`Api.CurrentUser.Me_GetAsync(...)`。
 
 ## 内置配置
 
