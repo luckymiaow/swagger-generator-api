@@ -128,11 +128,11 @@ export class DefaultApisTransform {
     return 'import axios, { AxiosRequestConfig, AxiosResponse } from \'axios\';\n'
   }
 
-  getDependencys(dependencys?: Dependency[]) {
+  getDependencys(dependencys?: Dependency[], modelAliases?: Record<string, string>) {
     const strs: string[] = [];
     if (dependencys) {
       strs.push('import {\n');
-      strs.push(dependencys.map(item => item.modules).join(', \n'));
+      strs.push(dependencys.map(item => modelAliases?.[item.modules] ? `${item.modules} as ${modelAliases[item.modules]}` : item.modules).join(', \n'));
       strs.push('} from \'../models\'\n');
     }
     return strs.join('')
@@ -156,19 +156,48 @@ export class DefaultApisTransform {
 
   getAction(action: ApiAction) {
     const strs: string[] = []
+    // FormData 请求:requestBody 为 FormData 时用 requestBodyFormData 字段定义生成 data 类型与 append 代码
+    let dataType: string | Properties[] | undefined = action.requestBody;
+    let isFormData = false;
+    let formDataFields: Properties[] | undefined;
+    if (action.requestBody === 'FormData' && action.requestBodyFormData && typeof action.requestBodyFormData === 'object') {
+      dataType = action.requestBodyFormData;
+      isFormData = true;
+      formDataFields = action.requestBodyFormData as Properties[];
+    }
+
     strs.push(`${action.name} (`);
     if (action.parameters?.length)
       strs.push(`params: ${joinProperties(action.parameters, 'interface', false)},`);
-    if (action.requestBody?.length)
-      strs.push(`data: ${joinProperties(action.requestBody, 'interface', false)},`);
+    if (dataType?.length)
+      strs.push(`data: ${joinProperties(dataType, 'interface', false)},`);
     strs.push(
       `options?: AxiosRequestConfig ): Promise<${this.getReturnType(action)}> {\n`,
     );
+
+    if (isFormData && formDataFields) {
+      strs.push(`const formData = new FormData();\n`);
+      formDataFields.forEach((v) => {
+        // 数组字段(文件/多值)循环 append,空值兜底
+        if (v.type?.some(p => p.includes('[]'))) {
+          strs.push(`(data.${v.name} || []).forEach(item=>{\n`);
+          strs.push(`formData.append('${v.name}', (item as any) || "");\n`);
+          strs.push(`})\n`);
+        }
+        else {
+          strs.push(`formData.append('${v.name}', (data.${v.name} as any) || "");\n`);
+        }
+      });
+    }
+
     strs.push(`return ${this.getApiRequestName(action)}({\n`);
     strs.push(`method: "${action.method}",\n`);
     const url = action.url.replace(/\{(\w+)\}/g, '${params.$1}');
     strs.push(`url: \`${url}\`,\n`);
-    if (action.requestBody) strs.push('data,\n');
+    if (dataType) {
+      if (isFormData) strs.push('data:formData,\n');
+      else strs.push('data,\n');
+    }
     if (action.parameters) strs.push('params,\n');
     if (action.responseType) strs.push(`responseType:'${action.responseType}',\n`);
     strs.push('...(options || {}),\n');
@@ -207,7 +236,7 @@ export class DefaultApisTransform {
   generated(data: ApiType) {
     const strs: string[] = [];
     strs.push(this.getImport())
-    strs.push(this.getDependencys(data.dependencys))
+    strs.push(this.getDependencys(data.dependencys, data.modelAliases))
     strs.push(this.getApiOptions())
     for (const namespace of data?.namespaces || [])
       strs.push(this.getNamespaces(namespace))

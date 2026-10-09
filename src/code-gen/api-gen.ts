@@ -3,10 +3,10 @@ import camelCase from 'camelcase';
 import handlebars from 'handlebars';
 import type { OpenAPI3, OpenAPI3Operation, OpenAPI3Parameter, Parameter } from '../schema';
 import type { ApiAction, ApiController, ApiOption, ApiProperties, ApiReturnResults, ApiType, ISettingsV3, ModelReturnResults, ModelType, Properties } from '../../types';
-import { defaultApisTransform } from '../presets';
+import { defaultApisTransform, joinProperties } from '../presets';
 import { HttpStatusCodes } from './types';
 import type { DotNetTypes, IAipContent, IApiBody, IApiOperation, IApiParameter, IDotnetType, IDotnetTypeRef } from './types';
-import { getFileId, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
+import { applyTypeTransform, getFileId, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
 import { buildType, buildTypeRef } from './type-builder';
 import { getModelByIDotnetType } from './model-gen';
 
@@ -189,6 +189,12 @@ function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3
     returnType: getResultType(item.responseBody),
   } as ApiAction
 
+  // 默认类型修正(object<> -> Record<>) + 按 dayjs 配置做 Date -> Dayjs
+  if (typeof res.returnType === 'string')
+    res.returnType = applyTypeTransform(res.returnType, setting.dayjs);
+  for (const p of [...(Array.isArray(res.parameters) ? res.parameters : []), ...(Array.isArray(res.requestBody) ? res.requestBody : [])])
+    if (p.type) p.type = p.type.map(t => applyTypeTransform(t, setting.dayjs));
+
   if (setting.template.api && setting.template.api.onBeforeActionWriteFile)
     return setting.template.api.onBeforeActionWriteFile(res, model.models, model.modelDir)
   return res
@@ -202,18 +208,25 @@ function fetchApisByController(doc: OpenAPI3, definedTypes: DotNetTypes, setting
   const res: ApiType = { controllers: [], namespaces: [], actions: [] };
   const tagObj: Record<string, string> = doc.tags?.reduce((a, b) => ((a[b.name] = b.description), a), {} as any) ?? {};
 
-  // 按 URL 的 controller 段分组(不合并等价路由,每个路由的接口都保留),
+  // 按 URL 根路径分 namespace(namespace 内再按 controller 段分组),不合并等价路由,
   // 方法名取 operationId 后半段;无 operationId 时用 URL 末段兜底
-  const controllerMap = new Map<string, { controller: ApiController; used: Set<string> }>();
+  const nsMap = new Map<string, Map<string, { controller: ApiController; used: Set<string> }>>();
   for (const apiPath in doc.paths) {
     const apiDef = doc.paths[apiPath] as { [key: string]: OpenAPI3Operation };
     for (const [method, operation] of Object.entries(apiDef)) {
       if (!operation.responses) continue;
 
+      const nsName = getNamespaceName(apiPath);
       const controllerName = getControllerName(apiPath);
       const opId = operation.operationId;
       // 类描述取 operationId 前缀对应的 tag 描述
       const tagName = opId?.includes('-') ? opId.slice(0, opId.indexOf('-')) : undefined;
+
+      let controllerMap = nsMap.get(nsName);
+      if (!controllerMap) {
+        controllerMap = new Map();
+        nsMap.set(nsName, controllerMap);
+      }
       let entry = controllerMap.get(controllerName);
       if (!entry) {
         entry = {
@@ -249,8 +262,48 @@ function fetchApisByController(doc: OpenAPI3, definedTypes: DotNetTypes, setting
       entry.controller.actions.push(getAction(actionName, item, setting, model));
     }
   }
-  res.controllers = [...controllerMap.values()].map(e => e.controller);
+  res.namespaces = [...nsMap.entries()].map(([nsName, controllerMap]) => ({
+    name: nsName,
+    controllers: [...controllerMap.values()].map(e => e.controller),
+  }));
+
+  // 类名/命名空间名与模型重名:模型 import 使用 as 别名导入,并同步替换 action 中的引用(类名保持不变)
+  const clsNames = new Set<string>();
+  for (const ns of res.namespaces || []) {
+    clsNames.add(ns.name);
+    for (const c of ns.controllers) clsNames.add(c.name);
+  }
+  for (const c of res.controllers || []) clsNames.add(c.name);
+  for (const a of res.actions || []) clsNames.add(a.name);
+
+  const aliases: Record<string, string> = {};
+  for (const modelName of Object.keys(model.modelDir)) {
+    if (clsNames.has(modelName)) {
+      let alias = `${modelName}Model`;
+      while (model.modelDir[alias]) alias += 'Model';
+      aliases[modelName] = alias;
+    }
+  }
+  if (Object.keys(aliases).length) {
+    for (const ns of res.namespaces || [])
+      for (const controller of ns.controllers)
+        for (const action of controller.actions)
+          applyModelAliases(action, aliases);
+    for (const controller of res.controllers || [])
+      for (const action of controller.actions)
+        applyModelAliases(action, aliases);
+    for (const action of res.actions || [])
+      applyModelAliases(action, aliases);
+    res.modelAliases = aliases;
+  }
   return res;
+}
+
+// 取 URL 根路径段作为命名空间名,如 /api/topics/{id} -> Api,/connect/token -> Connect
+function getNamespaceName(apiPath: string): string {
+  const parts = apiPath.split('/').filter(Boolean);
+  const seg = parts[0] || 'default';
+  return camelCase(seg, { pascalCase: true });
 }
 
 // 取 URL 中 controller 段(跳过固定前缀 api)作为类名,如 /api/topics/{id} -> Topics
@@ -262,10 +315,54 @@ function getControllerName(apiPath: string): string {
   return camelCase(seg, { pascalCase: true });
 }
 
+// 替换 action 中与类名冲突的模型引用为别名(如 User -> UserModel),用 \b 边界避免误伤 UserStatus/AdminUser 等
+function applyModelAliases(action: ApiAction, aliases: Record<string, string>) {
+  const replace = (s: string) => Object.entries(aliases)
+    .reduce((acc, [k, v]) => acc.replace(new RegExp(`\\b${k}\\b`, 'g'), v), s);
+
+  if (typeof action.returnType === 'string') action.returnType = replace(action.returnType);
+  if (typeof action.requestBody === 'string') action.requestBody = replace(action.requestBody);
+  if (typeof action.parameters === 'string') action.parameters = replace(action.parameters);
+
+  const props = [
+    ...(Array.isArray(action.parameters) ? action.parameters : []),
+    ...(Array.isArray(action.requestBody) ? action.requestBody : []),
+  ];
+  for (const p of props)
+    if (p.type) p.type = p.type.map(t => replace(t));
+}
+
 function handlebarsTransform(text: string, data: ApiType): string {
   const template = handlebars.compile(text, { noEscape: true });
   const code = template({ data });
   return code;
+}
+
+// 生成 API_PATH 全局类型声明:把全部接口汇总成 { 'url': { method, params, data, response } }
+function buildApiPathTypes(apis: ApiType): string {
+  const apiInfos: Array<{ url: string; method: string; params: string; data: string; response: string; info: string }> = [];
+  const collect = (action: ApiAction) => {
+    const paramsType = action.parameters ? (Array.isArray(action.parameters) ? joinProperties(action.parameters, 'interface', false) : action.parameters) : 'void';
+    const dataType = action.requestBody ? (Array.isArray(action.requestBody) ? joinProperties(action.requestBody, 'interface', false) : action.requestBody) : 'void';
+    const responseType = typeof action.returnType === 'string' ? action.returnType : 'any';
+    apiInfos.push({
+      url: action.url,
+      method: action.method?.toUpperCase(),
+      params: paramsType,
+      data: dataType,
+      response: responseType,
+      info: action.description || '',
+    });
+  };
+  for (const ns of apis.namespaces || [])
+    for (const c of ns.controllers)
+      c.actions?.forEach(collect);
+  for (const c of apis.controllers || [])
+    c.actions?.forEach(collect);
+  for (const a of apis.actions || [])
+    collect(a);
+
+  return `export {}\n\ndeclare global {\n  interface API_PATH {\n${apiInfos.map(v => `    /**${v.info}*/\n    '${v.url}': {\n      method: '${v.method}';\n      params: ${v.params};\n      data: ${v.data};\n      response: ${v.response};\n    }`).join('\n')}\n  }\n}\n`;
 }
 
 export async function generateApisAsync(
@@ -321,6 +418,16 @@ export async function generateApisAsync(
       await writeFileWithDirectoryCreation(fileId, apiOption.prettier !== false ? prettierCode(item.code) : item.code);
       paths[parse(fileId).name] = fileId
     }
+  }
+
+  // 生成 API_PATH 全局类型声明(api-paths.d.ts)
+  const apiPathTypes = (apiOption as any).apiPathTypes;
+  if (apiPathTypes) {
+    const code = buildApiPathTypes(apis);
+    const output = typeof apiPathTypes === 'object' ? apiPathTypes.output : undefined;
+    const fileId = getFileId(setting.basePath, output, 'api-paths', 'apis', '.d.ts');
+    await writeFileWithDirectoryCreation(fileId, prettierCode(code));
+    paths['api-paths'] = fileId;
   }
 
   return { apis, paths }

@@ -2,7 +2,7 @@ import handlebars from 'handlebars';
 import type { ISettingsV3, ModelOption, ModelType, Properties } from '../../types';
 import { defaultModelTransform } from '../presets';
 import type { DotNetTypes, IDotnetType } from './types';
-import { detectDependsTypes, getModelsFileId, isModelType, makeFilename, makeModelName, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
+import { applyTypeTransform, detectDependsTypes, getModelsFileId, isModelType, makeFilename, makeModelName, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
 
 export function generateModelsAsync(models: ModelType[], setting: ISettingsV3) {
   const modelsPath: Record<string, string> = {};
@@ -18,6 +18,13 @@ export function generateModelsAsync(models: ModelType[], setting: ISettingsV3) {
   const modelDir = models.reduce((a, b) => ((a[b.name] = b), a), {} as Record<string, ModelType>)
 
   for (let model of models) {
+    // 默认类型修正(object<> -> Record<>) + 按 dayjs 配置做 Date -> Dayjs,
+    // 在用户 onBeforeWriteFile 之前应用,保证其后基于 Dayjs 判断 value 的逻辑生效
+    if (model.properties) {
+      model.properties.forEach((v) => {
+        if (v.type) v.type = v.type.map(t => applyTypeTransform(t, setting.dayjs));
+      });
+    }
     if (modelsOption.onBeforeWriteFile) model = modelsOption.onBeforeWriteFile(model, models, modelDir)
 
     let code = defaultModelTransform

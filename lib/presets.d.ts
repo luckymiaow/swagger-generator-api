@@ -11,7 +11,7 @@ export declare const defaultApisTransform: string;
  */
 export declare class DefaultApisTransform {
     getImport(): string;
-    getDependencys(dependencys?: Dependency[]): string;
+    getDependencys(dependencys?: Dependency[], modelAliases?: Record<string, string>): string;
     getApiOptions(): string;
     getApiRequestName(action: ApiAction): string;
     getReturnType(action: ApiAction): string | import("../types").ApiProperties[];

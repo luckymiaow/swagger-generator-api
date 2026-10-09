@@ -59,6 +59,22 @@ export function makeModelName(type: IDotnetType) {
   return sb.ToString();
 }
 
+// 总是应用的类型修正:object<> -> Record<>(object<> 不是合法 TS 类型)
+export function normalizeTypeName(type: string): string {
+  return type.includes('object<') ? type.replace(/object</g, 'Record<') : type;
+}
+
+// 由 dayjs 配置控制的类型转换(Date -> Dayjs)
+export function transformTypeName(type: string): string {
+  return type === 'Date' ? 'Dayjs' : type;
+}
+
+// 统一应用类型转换:始终做 object<> -> Record<>,dayjs 为 true 时再做 Date -> Dayjs
+export function applyTypeTransform(type: string, dayjs?: boolean): string {
+  const t = normalizeTypeName(type);
+  return dayjs ? transformTypeName(t) : t;
+}
+
 export function detectDependsTypes(type: IDotnetType): DotNetTypes {
   const depends: DotNetTypes = {};
   function append(target: IDotnetType) {

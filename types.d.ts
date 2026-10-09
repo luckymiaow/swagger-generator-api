@@ -7,6 +7,12 @@ export interface ISettingsV3 {
   url: string | OpenAPI.Document | (() => Promise<OpenAPI.Document>);
   basePath: string;
   template: Template;
+  /**
+   * 是否将 Date 类型转换为 Dayjs
+   * (object<> -> Record<> 的类型修正始终生效,无需配置)
+   * @default false
+   */
+  dayjs?: boolean;
 }
 
 export type Template = {
@@ -106,6 +112,14 @@ export type ApiOptionBase = {
    */
   onBeforeActionWriteFile?: (action: ApiAction, models: ModelType[], modelDir: Record<string, ModelType>) => ApiAction
 
+  /**
+   * 是否生成 API_PATH 全局类型声明(api-paths.d.ts)
+   * - true: 生成到默认路径 basePath/apis/api-paths.d.ts
+   * - 对象: 可自定义输出路径(相对 basePath 或绝对路径,支持扩展名)
+   * - false/缺省: 不生成
+   */
+  apiPathTypes?: boolean | { output?: string }
+
 }
 
 export type TransformModel = (model: ModelType) => string;
@@ -148,6 +162,11 @@ export type ApiType = {
   namespaces?: ApiNamespace[];
   controllers?: ApiController[];
   actions?: ApiAction[];
+  /**
+   * 与接口类名冲突的模型 import 别名映射,如 { User: 'UserModel' }
+   * 生成代码时冲突模型以 as 别名导入,action 中的引用同步替换为别名
+   */
+  modelAliases?: Record<string, string>;
 };
 
 export type ApiNamespace = {
