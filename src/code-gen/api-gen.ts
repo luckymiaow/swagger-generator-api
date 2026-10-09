@@ -267,6 +267,14 @@ function fetchApisByController(doc: OpenAPI3, definedTypes: DotNetTypes, setting
     controllers: [...controllerMap.values()].map(e => e.controller),
   }));
 
+  // 过滤掉无 url 的 action(防御异常路径)
+  for (const ns of res.namespaces || [])
+    for (const c of ns.controllers)
+      c.actions = c.actions?.filter(a => a.url);
+  for (const c of res.controllers || [])
+    c.actions = c.actions?.filter(a => a.url);
+  res.actions = res.actions?.filter(a => a.url);
+
   // 类名/命名空间名与模型重名:模型 import 使用 as 别名导入,并同步替换 action 中的引用(类名保持不变)
   const clsNames = new Set<string>();
   for (const ns of res.namespaces || []) {

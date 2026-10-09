@@ -154,17 +154,37 @@ export class DefaultApisTransform {
     return action.returnType
   }
 
+  // 判断是否为 FormData 请求(requestBody 为 FormData 且提供了字段定义)
+  isFormDataRequest(action: ApiAction): boolean {
+    return !!(action.requestBody === 'FormData' && action.requestBodyFormData && typeof action.requestBodyFormData === 'object');
+  }
+
+  // 生成 FormData 构建代码(const formData 声明 + 各字段 append,数组字段循环 + 空值兜底)
+  getFormDataCode(action: ApiAction): string {
+    if (!this.isFormDataRequest(action)) return '';
+    const fields = action.requestBodyFormData as Properties[];
+    const strs: string[] = [`const formData = new FormData();\n`];
+    fields.forEach((v) => {
+      // 数组字段(文件/多值)循环 append,空值兜底
+      if (v.type?.some(p => p.includes('[]'))) {
+        strs.push(`(data.${v.name} || []).forEach(item=>{\n`);
+        strs.push(`formData.append('${v.name}', (item as any) || "");\n`);
+        strs.push(`})\n`);
+      }
+      else {
+        strs.push(`formData.append('${v.name}', (data.${v.name} as any) || "");\n`);
+      }
+    });
+    return strs.join('');
+  }
+
   getAction(action: ApiAction) {
     const strs: string[] = []
-    // FormData 请求:requestBody 为 FormData 时用 requestBodyFormData 字段定义生成 data 类型与 append 代码
+    // FormData 请求:requestBody 为 FormData 时用 requestBodyFormData 字段定义生成 data 类型
     let dataType: string | Properties[] | undefined = action.requestBody;
-    let isFormData = false;
-    let formDataFields: Properties[] | undefined;
-    if (action.requestBody === 'FormData' && action.requestBodyFormData && typeof action.requestBodyFormData === 'object') {
+    const isFormData = this.isFormDataRequest(action);
+    if (isFormData)
       dataType = action.requestBodyFormData;
-      isFormData = true;
-      formDataFields = action.requestBodyFormData as Properties[];
-    }
 
     strs.push(`${action.name} (`);
     if (action.parameters?.length)
@@ -175,20 +195,7 @@ export class DefaultApisTransform {
       `options?: AxiosRequestConfig ): Promise<${this.getReturnType(action)}> {\n`,
     );
 
-    if (isFormData && formDataFields) {
-      strs.push(`const formData = new FormData();\n`);
-      formDataFields.forEach((v) => {
-        // 数组字段(文件/多值)循环 append,空值兜底
-        if (v.type?.some(p => p.includes('[]'))) {
-          strs.push(`(data.${v.name} || []).forEach(item=>{\n`);
-          strs.push(`formData.append('${v.name}', (item as any) || "");\n`);
-          strs.push(`})\n`);
-        }
-        else {
-          strs.push(`formData.append('${v.name}', (data.${v.name} as any) || "");\n`);
-        }
-      });
-    }
+    strs.push(this.getFormDataCode(action));
 
     strs.push(`return ${this.getApiRequestName(action)}({\n`);
     strs.push(`method: "${action.method}",\n`);

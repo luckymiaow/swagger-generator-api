@@ -15,6 +15,8 @@ export declare class DefaultApisTransform {
     getApiOptions(): string;
     getApiRequestName(action: ApiAction): string;
     getReturnType(action: ApiAction): string | import("../types").ApiProperties[];
+    isFormDataRequest(action: ApiAction): boolean;
+    getFormDataCode(action: ApiAction): string;
     getAction(action: ApiAction): string;
     getController(controller: ApiController): string;
     getNamespaces(namespace: ApiNamespace): string;
