@@ -76,6 +76,12 @@ export default defineConfig({
 
 ```
 
+## 接口分组规则
+
+生成时接口按 **URL 的 controller 段** 分组为一个个类（如 `/api/topics*` → `Topics` 类、`/api/topic-analyses*` → `TopicAnalyses` 类），每个类内的方法名取自接口的 **operationId 后半段**（如 `Topic-GetTopics` → `GetTopicsAsync`），无 operationId 时回退用 URL 段命名。同一类内方法名冲突时会追加 URL 段区分（如 `/api/workbench/todos` 与 `/api/workbench/tasks` 同为 `Workbench-GetTodos`，后者生成 `GetTodosTasksAsync`）。
+
+生成结果为扁平 `export class`（无 `namespace` 包装），调用方式形如 `Topics.GetTopicsAsync(...)`。
+
 ##预设配置，可以参考配置信息
 
 ```typescript

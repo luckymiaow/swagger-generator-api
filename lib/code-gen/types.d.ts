@@ -130,6 +130,7 @@ export interface IApiBody {
 export interface IApiOperation {
     path: string;
     method: string;
+    operationId?: string;
     summary?: string;
     description?: string;
     parameters?: IApiParameter[];

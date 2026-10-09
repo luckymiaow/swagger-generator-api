@@ -1,5 +1,4 @@
 import { parse } from 'node:path';
-import { String } from 'typescript-string-operations';
 import camelCase from 'camelcase';
 import handlebars from 'handlebars';
 import type { OpenAPI3, OpenAPI3Operation, OpenAPI3Parameter, Parameter } from '../schema';
@@ -10,10 +9,6 @@ import type { DotNetTypes, IAipContent, IApiBody, IApiOperation, IApiParameter, 
 import { getFileId, makeTypename, prettierCode, writeFileWithDirectoryCreation } from './utils';
 import { buildType, buildTypeRef } from './type-builder';
 import { getModelByIDotnetType } from './model-gen';
-
-interface ApiNode {
-  [key: string]: ApiNode | IApiOperation
-}
 
 function transformParameters(parameters: Parameter[], definedTypes: DotNetTypes): IApiParameter[] {
   return parameters.map((item) => {
@@ -76,6 +71,7 @@ function transformOperation(
   return {
     method,
     path,
+    operationId: operation.operationId,
     summary,
     description,
     parameters,
@@ -198,134 +194,72 @@ function getAction(actionName: string, item: IApiOperation, setting: ISettingsV3
   return res
 }
 
-function flattenOperations(node: ApiNode, prefix = ''): Array<[string, IApiOperation]> {
-  const result: Array<[string, IApiOperation]> = [];
-  for (const [k, v] of Object.entries(node)) {
-    const name = prefix ? `${prefix}_${k}` : k;
-    if (isApiOperation(v)) result.push([name, v]);
-    else if (v && typeof v === 'object') result.push(...flattenOperations(v as ApiNode, name));
-  }
-  return result;
-}
-
-function fetchControllers(nodes: Record<string, ApiNode>, tagObj: Record<string, string>, setting: ISettingsV3, model: { models: ModelType[]; modelDir: Record<string, ModelType> }): ApiController[] {
-  const controllers: ApiController[] = [];
-
-  for (const [key, value] of Object.entries(nodes)) {
-    // 值本身就是一个 operation(如列表/详情接口因 fnName 带 ById_GetAsync 后缀直接挂在分组下),
-    // 不能当作子分组去 flatten(否则会把 operation 自身的字段当树遍历,导致 actions 为空)
-    if (isApiOperation(value)) {
-      controllers.push({
-        name: key,
-        description: tagObj?.[key],
-        actions: [getAction(key, value, setting, model)],
-      });
-      continue;
-    }
-    const ops = flattenOperations(value as ApiNode);
-    controllers.push({
-      name: key,
-      description: tagObj?.[key],
-      actions: ops.map(([actionName, item]) => getAction(actionName, item, setting, model)),
-    });
-  }
-  return controllers;
-}
-
 export function fetchApisAsync(doc: OpenAPI3, definedTypes: DotNetTypes, setting: ISettingsV3, model: { models: ModelType[]; modelDir: Record<string, ModelType> }) {
-  const apiRoot: ApiNode = {};
+  return fetchApisByController(doc, definedTypes, setting, model);
+}
 
-  for (const apiPath in doc.paths) {
-    // 路径分段:中间的 {param} 转成 ByXxx 保留进嵌套路径;末尾的 {param} 丢弃(它是 action 的参数,不作为嵌套层级)
-    const urlParts = apiPath
-      .split(/[/\\]/)
-      .filter(s => !String.IsNullOrWhiteSpace(s))
-      .map((s) => {
-        const m = s.match(/^\{([\w\d_]+)\}$/i);
-        if (m)
-          return { isParam: true, name: `By${camelCase(m[1], { pascalCase: true })}` };
-        return { isParam: false, name: camelCase(s, { pascalCase: true }) };
-      });
-
-    // action 取最后一个非 {param} 段;末尾连续的 {param} 不进入嵌套路径
-    let actionIdx = urlParts.length - 1;
-    while (actionIdx >= 0 && urlParts[actionIdx].isParam) actionIdx--;
-    const action = urlParts[actionIdx]?.name;
-    const nestParts = actionIdx >= 0 ? urlParts.slice(0, actionIdx).map(p => p.name) : [];
-    // 末尾连续的 {param}(action 之后)转成 fnName 的 ByXxx 后缀,避免 /ai-logs 与 /ai-logs/{logId} 这类列表/详情接口归约到同一 fnName 而被覆盖
-    const tailParams = urlParts.slice(actionIdx + 1).filter(p => p.isParam).map(p => p.name);
-
-    let node = apiRoot;
-    for (const part of nestParts) {
-      if (!(part in node)) node[part] = {};
-      node = node[part] as ApiNode;
-    }
-    const apiDef = doc.paths[apiPath];
-    const operations = Object.entries(apiDef as { [key: string]: OpenAPI3Operation })
-      .filter(p => p[1].responses)
-      .map((p) => {
-        const method = p[0];
-        const operationDef = p[1];
-        return transformOperation(method, apiPath, operationDef, definedTypes);
-      });
-    const methods: any = node;
-    for (const operation of operations) {
-      const actionLower = action?.toLowerCase() || operation.method;
-      const methodLower = operation.method.toLowerCase();
-      let fnName = camelCase(action || actionLower, { pascalCase: true });
-      if (tailParams.length) fnName += tailParams.join('');
-      if (!(actionLower.startsWith(methodLower) || actionLower.endsWith(methodLower)))
-        fnName += `_${camelCase(operation.method, { pascalCase: true })}`;
-      if (!actionLower.endsWith('async')) fnName += 'Async';
-      methods[fnName] = operation;
-    }
-  }
+function fetchApisByController(doc: OpenAPI3, definedTypes: DotNetTypes, setting: ISettingsV3, model: { models: ModelType[]; modelDir: Record<string, ModelType> }): ApiType {
+  const res: ApiType = { controllers: [], namespaces: [], actions: [] };
   const tagObj: Record<string, string> = doc.tags?.reduce((a, b) => ((a[b.name] = b.description), a), {} as any) ?? {};
 
-  return groupApis(apiRoot, tagObj, setting, model);
-}
+  // 按 URL 的 controller 段分组(不合并等价路由,每个路由的接口都保留),
+  // 方法名取 operationId 后半段;无 operationId 时用 URL 末段兜底
+  const controllerMap = new Map<string, { controller: ApiController; used: Set<string> }>();
+  for (const apiPath in doc.paths) {
+    const apiDef = doc.paths[apiPath] as { [key: string]: OpenAPI3Operation };
+    for (const [method, operation] of Object.entries(apiDef)) {
+      if (!operation.responses) continue;
 
-function isApiOperation(value: unknown): value is IApiOperation {
-  return !!value && typeof value === 'object' && 'path' in value && 'method' in value;
-}
+      const controllerName = getControllerName(apiPath);
+      const opId = operation.operationId;
+      // 类描述取 operationId 前缀对应的 tag 描述
+      const tagName = opId?.includes('-') ? opId.slice(0, opId.indexOf('-')) : undefined;
+      let entry = controllerMap.get(controllerName);
+      if (!entry) {
+        entry = {
+          controller: { name: controllerName, description: tagName ? tagObj?.[tagName] : undefined, actions: [] },
+          used: new Set(),
+        };
+        controllerMap.set(controllerName, entry);
+      }
 
-function isApiGroup(value: unknown): value is Record<string, IApiOperation> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
-  const entries = Object.values(value);
-  return entries.length > 0 && entries.every(isApiOperation);
-}
+      let actionName: string;
+      if (opId) {
+        const dashIdx = opId.indexOf('-');
+        actionName = camelCase(dashIdx >= 0 ? opId.slice(dashIdx + 1) : opId, { pascalCase: true });
+      }
+      else {
+        const segs = apiPath.split('/').filter(Boolean);
+        actionName = camelCase(`${segs[segs.length - 1] ?? 'index'}_${method}`, { pascalCase: true });
+      }
+      if (!/async$/i.test(actionName)) actionName += 'Async';
 
-function groupApis(
-  apiRoot: ApiNode,
-  tagObj: Record<string, string>,
-  setting: ISettingsV3,
-  model: { models: ModelType[]; modelDir: Record<string, ModelType> },
-): ApiType {
-  const res: ApiType = { controllers: [], namespaces: [], actions: [] };
-  const groupApi = Object.entries(apiRoot);
-  if (groupApi.length === 1) {
-    const [key, value] = groupApi[0];
-    if (isApiOperation(value)) res.actions?.push(getAction(key, value, setting, model));
-    else res.controllers = fetchControllers(groupApi[0][1] as any, tagObj, setting, model);
-    return res;
+      // 类内方法名去重:冲突时追加 URL 最后一个非参数段区分(如 /api/workbench/tasks -> GetTodosTasksAsync)
+      if (entry.used.has(actionName)) {
+        const segs = apiPath.split('/').filter(Boolean).filter(s => !/^\{[\w\d_]+\}$/.test(s));
+        const base = actionName.replace(/Async$/, '');
+        const suffix = segs.length ? camelCase(segs[segs.length - 1], { pascalCase: true }) : camelCase(method, { pascalCase: true });
+        actionName = camelCase(base + suffix, { pascalCase: true }) + 'Async';
+        let i = 2;
+        while (entry.used.has(actionName)) actionName = `${base}${suffix}${i++}Async`;
+      }
+      entry.used.add(actionName);
+
+      const item = transformOperation(method, apiPath, operation, definedTypes);
+      entry.controller.actions.push(getAction(actionName, item, setting, model));
+    }
   }
-
-  for (const [key, apis] of groupApi) {
-    if (isApiOperation(apis)) {
-      res.actions?.push(getAction(key, apis, setting, model));
-    }
-    else if (isApiGroup(apis)) {
-      res.controllers?.push(...fetchControllers({ [key]: apis } as any, tagObj, setting, model));
-    }
-    else {
-      res.namespaces?.push({
-        name: key,
-        controllers: fetchControllers(apis as any, tagObj, setting, model),
-        description: tagObj?.[key],
-      });
-    }
-  }
+  res.controllers = [...controllerMap.values()].map(e => e.controller);
   return res;
+}
+
+// 取 URL 中 controller 段(跳过固定前缀 api)作为类名,如 /api/topics/{id} -> Topics
+function getControllerName(apiPath: string): string {
+  const parts = apiPath.split('/').filter(Boolean);
+  let idx = 0;
+  if (parts[0]?.toLowerCase() === 'api') idx = 1;
+  const seg = parts[idx] || parts[0] || 'default';
+  return camelCase(seg, { pascalCase: true });
 }
 
 function handlebarsTransform(text: string, data: ApiType): string {
