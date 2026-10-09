@@ -236,18 +236,10 @@ function fetchApisByController(doc: OpenAPI3, definedTypes: DotNetTypes, setting
         controllerMap.set(controllerName, entry);
       }
 
-      let actionName: string;
-      if (opId) {
-        const dashIdx = opId.indexOf('-');
-        actionName = camelCase(dashIdx >= 0 ? opId.slice(dashIdx + 1) : opId, { pascalCase: true });
-      }
-      else {
-        const segs = apiPath.split('/').filter(Boolean);
-        actionName = camelCase(`${segs[segs.length - 1] ?? 'index'}_${method}`, { pascalCase: true });
-      }
-      if (!/async$/i.test(actionName)) actionName += 'Async';
+      // 方法名按 URL 段 + HTTP 方法生成(旧命名规则,如 /api/CurrentUser/Me GET -> Me_GetAsync)
+      let actionName = getUrlActionName(apiPath, method);
 
-      // 类内方法名去重:冲突时追加 URL 最后一个非参数段区分(如 /api/workbench/tasks -> GetTodosTasksAsync)
+      // 类内方法名去重:冲突时追加 URL 最后一个非参数段区分
       if (entry.used.has(actionName)) {
         const segs = apiPath.split('/').filter(Boolean).filter(s => !/^\{[\w\d_]+\}$/.test(s));
         const base = actionName.replace(/Async$/, '');
@@ -313,6 +305,30 @@ function getControllerName(apiPath: string): string {
   if (parts[0]?.toLowerCase() === 'api') idx = 1;
   const seg = parts[idx] || parts[0] || 'default';
   return camelCase(seg, { pascalCase: true });
+}
+
+// 按 URL 段 + HTTP 方法生成方法名(旧命名规则,如 /api/CurrentUser/Me GET -> Me_GetAsync),
+// 末尾参数段转 ByXxx 后缀(如 /api/topics/{id} GET -> TopicsById_GetAsync)
+function getUrlActionName(apiPath: string, method: string): string {
+  const parts = apiPath.split('/').filter(Boolean).map((s) => {
+    const m = s.match(/^\{([\w\d_]+)\}$/i);
+    if (m)
+      return { isParam: true, name: `By${camelCase(m[1], { pascalCase: true })}` };
+    return { isParam: false, name: camelCase(s, { pascalCase: true }) };
+  });
+  let actionIdx = parts.length - 1;
+  while (actionIdx >= 0 && parts[actionIdx].isParam) actionIdx--;
+  const action = parts[actionIdx]?.name;
+  const tailParams = parts.slice(actionIdx + 1).filter(p => p.isParam).map(p => p.name);
+
+  const actionLower = action?.toLowerCase() || method.toLowerCase();
+  const methodLower = method.toLowerCase();
+  let fnName = camelCase(action || actionLower, { pascalCase: true });
+  if (tailParams.length) fnName += tailParams.join('');
+  if (!(actionLower.startsWith(methodLower) || actionLower.endsWith(methodLower)))
+    fnName += `_${camelCase(method, { pascalCase: true })}`;
+  if (!actionLower.endsWith('async')) fnName += 'Async';
+  return fnName;
 }
 
 // 替换 action 中与类名冲突的模型引用为别名(如 User -> UserModel),用 \b 边界避免误伤 UserStatus/AdminUser 等
